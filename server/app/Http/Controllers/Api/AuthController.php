@@ -34,7 +34,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
         ]);
-
+        
         // Create user profile
         UserProfile::create([
             'user_id' => $user->id,
@@ -76,7 +76,7 @@ class AuthController extends Controller
             'id' => ['required', 'integer'],
             'hash' => ['required', 'string'],
         ]);
-
+        
         $user = User::findOrFail($request->id);
 
         if (!hash_equals((string) $request->hash, sha1($user->getEmailForVerification()))) {
