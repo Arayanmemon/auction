@@ -2,10 +2,12 @@ import { useParams } from "react-router-dom";
 import { heroAuctions as auctions } from "../data/heroAuctions";
 import CountdownTimer from "../components/CountdownTimer";
 import { useState } from "react";
+import { useAuth } from "../AuthContext";
 
 const AuctionDetail = () => {
   const { id } = useParams();
   const auction = auctions.find((a) => a.id === parseInt(id));
+  const { user } = useAuth();
 
   if (!auction) {
     return <p className="text-center mt-10">Auction not found.</p>;
@@ -18,8 +20,33 @@ const AuctionDetail = () => {
   const [selectedImage, setSelectedImage] = useState(auctionImages[0]);
   const [bidAmount, setBidAmount] = useState("");
   const [isSaved, setIsSaved] = useState(false);
+  const [currentBid, setCurrentBid] = useState(auction.currentBid);
+  const [bidHistory, setBidHistory] = useState(auction.bidHistory || []);
 
   const toggleWishlist = () => setIsSaved((prev) => !prev);
+
+  // Place bid logic
+  const handlePlaceBid = () => {
+    const bidValue = parseFloat(bidAmount);
+    if (!bidValue || bidValue <= currentBid) {
+      alert("Bid must be greater than current bid!");
+      return;
+    }
+    if (!user) {
+      alert("You must be logged in to place a bid.");
+      return;
+    }
+    // Add bid to history
+    const newBid = {
+      user: user.firstName + " " + user.lastName,
+      amount: bidValue,
+      time: new Date().toLocaleString(),
+    };
+    setBidHistory(prev => [newBid, ...prev]);
+    setCurrentBid(bidValue);
+    setBidAmount("");
+    alert(`Bid placed: $${bidValue}`);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -92,10 +119,10 @@ const AuctionDetail = () => {
           {/* Current Price & Bids */}
           <div className="flex items-baseline gap-2 mb-2">
             <p className="text-3xl font-bold text-[rgb(0,78,102)]">
-              ${auction.currentBid}
+              ${currentBid}
             </p>
             <span className="text-gray-500 text-sm">
-              ({auction.totalBids || 0} bids)
+              ({bidHistory.length} bids)
             </span>
           </div>
 
@@ -114,17 +141,13 @@ const AuctionDetail = () => {
             type="number"
             value={bidAmount}
             onChange={(e) => setBidAmount(e.target.value)}
-            placeholder={`$${auction.currentBid + 25}`}
+            placeholder={`$${currentBid + 25}`}
             className="border border-gray-300 rounded px-3 py-2 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
           />
 
           {/* Place Bid Button */}
           <button
-            onClick={() =>
-              bidAmount
-                ? alert(`Bid placed: $${bidAmount}`)
-                : alert("Enter a bid amount first!")
-            }
+            onClick={handlePlaceBid}
             className="w-full bg-[rgb(0,78,102)] text-white py-2 rounded hover:bg-[rgb(0,90,115)] transition font-semibold"
           >
             Place Bid
@@ -146,7 +169,7 @@ const AuctionDetail = () => {
       </div>
 
       {/* Bid History */}
-      {/* {auction.bidHistory && auction.bidHistory.length > 0 && (
+      {bidHistory.length > 0 && (
         <div className="mt-10">
           <h2 className="text-2xl font-bold mb-4">Bid History</h2>
           <div className="border rounded-lg overflow-hidden">
@@ -159,7 +182,7 @@ const AuctionDetail = () => {
                 </tr>
               </thead>
               <tbody>
-                {auction.bidHistory.map((bid, index) => (
+                {bidHistory.map((bid, index) => (
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="p-3 border-b">{bid.user}</td>
                     <td className="p-3 border-b">${bid.amount}</td>
@@ -170,7 +193,7 @@ const AuctionDetail = () => {
             </table>
           </div>
         </div>
-      )} */}
+      )}
     </div>
   );
 };

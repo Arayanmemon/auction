@@ -23,11 +23,11 @@ export const AuthProvider = ({ children }) => {
     navigate("/"); // Redirect after registration
   };
 
-  // Upgrade to seller role
-  const becomeSeller = () => {
+  // Upgrade to seller role, storing seller onboarding info
+  const becomeSeller = (sellerData) => {
     if (!user) return;
-
-    const updatedUser = { ...user, role: "seller" };
+    // Merge sellerData with existing user, update role
+    const updatedUser = { ...user, ...sellerData, role: "seller" };
     setUser(updatedUser);
     localStorage.setItem("user", JSON.stringify(updatedUser));
     navigate("/seller-dashboard"); // redirect to seller dashboard

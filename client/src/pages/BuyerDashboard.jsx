@@ -1,7 +1,9 @@
 import { useAuth } from "../AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const BuyerDashboard = () => {
-  const { user, becomeSeller } = useAuth();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -50,7 +52,7 @@ const BuyerDashboard = () => {
         {user?.role !== "seller" && (
           <div className="bg-white rounded-lg shadow p-4 flex items-center justify-center">
             <button
-              onClick={becomeSeller}
+              onClick={() => navigate("/become-seller")}
               className="bg-[rgb(0,78,102)] text-white px-4 py-2 rounded hover:bg-[rgb(0,90,115)] transition"
             >
               Become a Seller
