@@ -6,12 +6,11 @@ import "./index.css";
 
 // Context Providers
 import { CategoryProvider } from "./CategoryContext";
-import { AuthProvider } from "./AuthContext";
+import { AuthProvider } from "./contexts/AuthContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
-      {/* Wrap AuthProvider around CategoryProvider so both are global */}
       <AuthProvider>
         <CategoryProvider>
           <App />

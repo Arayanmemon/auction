@@ -1,14 +1,14 @@
-import { useAuth } from "../AuthContext";
+import { useAuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const BuyerDashboard = () => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const navigate = useNavigate();
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6 text-[rgb(0,78,102)]">
-        Welcome, {user?.firstName || "Buyer"}
+        Welcome, {user?.name || "Buyer"}
       </h1>
 
       {/* Sections */}

@@ -1,0 +1,11 @@
+{
+    "servers": {
+        "my-mcp-server-3a391bec": {
+            "type": "stdio",
+            "command": "artisan",
+            "args": [
+                "boost:mcp"
+            ]
+        }
+    }
+}

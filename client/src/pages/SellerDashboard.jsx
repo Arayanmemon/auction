@@ -1,7 +1,8 @@
 import { heroAuctions } from "../data/heroAuctions"; // Replace later with seller-specific data
 import AuctionCard from "../components/AuctionCard";
-import { useState } from "react";
-import { useAuth } from "../AuthContext";
+import { useEffect, useState } from "react";
+import { useAuthContext } from "../contexts/AuthContext";
+import axios from "axios";
 
 const payoutMethodsList = [
   { key: "bank", label: "Bank Account" },
@@ -12,7 +13,10 @@ const payoutMethodsList = [
 ];
 
 const SellerDashboard = () => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
+  const [auctions, setAuctions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   // Dummy seller id for demonstration
   const sellerId = user?.id || 1;
 
@@ -25,8 +29,43 @@ const SellerDashboard = () => {
     payoneer: false,
   });
 
-  // Only show auctions owned by seller
-  const myAuctions = heroAuctions.filter(a => a.sellerId === sellerId);
+  useEffect(() => {
+    const fetchSellerAuctions = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("authToken");
+        const response = await fetch(`/api/seller/auctions`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log(data);
+        setAuctions(data.auctions);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching auctions:", error);
+        setError("Failed to fetch auctions");
+        // Fallback to dummy data on error
+        setAuctions(heroAuctions.filter(a => a.sellerId === sellerId));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchSellerAuctions();
+    }
+  }, [user, sellerId]);
+
+  // Use fetched auctions instead of dummy data
+  const myAuctions = loading ? [] : (auctions.length > 0 ? auctions : heroAuctions.filter(a => a.sellerId === sellerId));
 
   // Dummy sales history (replace with real data)
   const salesHistory = [
@@ -75,7 +114,7 @@ const SellerDashboard = () => {
       {/* Seller profile/account info (dummy) */}
       <div className="mb-8 p-4 bg-gray-100 rounded-lg border">
         <h2 className="text-xl font-semibold mb-2">Account Info</h2>
-        <p><strong>Name:</strong> {user?.firstName || "Demo Seller"} {user?.lastName || ""}</p>
+        <p><strong>Name:</strong> {user?.name || "Demo Seller"} {user?.lastName || ""}</p>
         <p><strong>Email:</strong> {user?.email || "demo@seller.com"}</p>
         <p><strong>Phone:</strong> {user?.phone || "+1234567890"}</p>
       </div>
@@ -116,7 +155,11 @@ const SellerDashboard = () => {
         </a>
       </div>
 
-      {myAuctions.length > 0 ? (
+      {loading ? (
+        <div className="text-center py-8">Loading your auctions...</div>
+      ) : error && auctions.length === 0 ? (
+        <div className="text-center py-8 text-red-600">{error}</div>
+      ) : myAuctions.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {myAuctions.map((auction) => (
             <div key={auction.id} className="relative">
@@ -134,7 +177,7 @@ const SellerDashboard = () => {
               </div>
               {/* Commission calculation (dummy) */}
               <div className="mt-2 text-xs text-gray-600">
-                Commission: 10% = ${auction.price ? (auction.price * 0.1).toFixed(2) : "-"}
+                Commission: 10% = ${auction.buy_now_price ? (auction.buy_now_price * 0.1).toFixed(2) : "-"}
               </div>
             </div>
           ))}

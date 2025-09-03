@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { heroAuctions } from "../data/heroAuctions";
 import AuctionCard from "../components/AuctionCard";
 import HeroSlider from "../components/HeroSlider";
@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 
 const Home = () => {
   const { selectedCategory } = useCategory();
+  const [auctions, setAuctions] = useState([]);
 
   // Filter auctions safely
   const filteredAuctions =
@@ -20,6 +21,26 @@ const Home = () => {
       const section = document.getElementById("auctions-section");
       if (section) section.scrollIntoView({ behavior: "smooth" });
     }
+  }, []);
+
+  useEffect(() => {
+    const fetchSellerAuctions = async () => {
+      try {
+        const response = await fetch(`/api/auctions/all`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log(data);
+        setAuctions(data.data || data);
+      } catch (error) {
+        console.error("Error fetching auctions:", error);
+      }
+    };
+
+    fetchSellerAuctions();
   }, []);
 
   return (
@@ -43,9 +64,9 @@ const Home = () => {
           </Link>
         </div>
 
-        {filteredAuctions.length > 0 ? (
+        {auctions.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredAuctions.map((auction) => (
+            {auctions.map((auction) => (
               <AuctionCard key={auction.id} auction={auction} />
             ))}
           </div>

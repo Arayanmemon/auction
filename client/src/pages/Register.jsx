@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { useAuth } from "../AuthContext";
+import { useAuthContext } from "../contexts/AuthContext";
+import { FilePen } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
-  const { register } = useAuth();
+  const { register, loading, error, clearError } = useAuthContext();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -20,11 +23,25 @@ const Register = () => {
     } else {
       setFormData({ ...formData, [name]: value });
     }
+    if (error) clearError();
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    register(formData); // dummy register
+    try {
+      await register({
+        name: `${formData.firstName} ${formData.lastName}`,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        phone: formData.phone,
+        address: formData.address,
+        email: formData.email,
+        password: formData.password
+      });
+      navigate('/'); // Redirect to home page on successful login
+    } catch (error) {
+      // Error is handled by the context
+    }
   };
 
   return (
@@ -37,6 +54,12 @@ const Register = () => {
           Create Your Account
         </h2>
 
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+
         <div className="flex gap-2">
           <input
             name="firstName"
@@ -45,6 +68,7 @@ const Register = () => {
             onChange={handleChange}
             className="border rounded px-3 py-2 w-1/2 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
             required
+            disabled={loading}
           />
           <input
             name="lastName"
@@ -53,6 +77,7 @@ const Register = () => {
             onChange={handleChange}
             className="border rounded px-3 py-2 w-1/2 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
             required
+            disabled={loading}
           />
         </div>
 
@@ -64,6 +89,7 @@ const Register = () => {
           onChange={handleChange}
           className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
           required
+          disabled={loading}
         />
 
         <input
@@ -74,6 +100,7 @@ const Register = () => {
           onChange={handleChange}
           className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
           required
+          disabled={loading}
         />
 
         <textarea
@@ -83,6 +110,7 @@ const Register = () => {
           onChange={handleChange}
           className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
           required
+          disabled={loading}
         />
 
         <input
@@ -93,6 +121,7 @@ const Register = () => {
           onChange={handleChange}
           className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
           required
+          disabled={loading}
         />
 
         <input
@@ -105,9 +134,10 @@ const Register = () => {
 
         <button
           type="submit"
-          className="mt-4 w-full bg-[rgb(0,78,102)] text-white py-2 rounded hover:bg-[rgb(0,90,115)] transition"
+          disabled={loading}
+          className="mt-4 w-full bg-[rgb(0,78,102)] text-white py-2 rounded hover:bg-[rgb(0,90,115)] transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Register
+          {loading ? "Registering..." : "Register"}
         </button>
       </form>
     </div>

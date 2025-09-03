@@ -203,19 +203,18 @@ class BuyerController extends Controller
         ]);
     }
 
-    public function addToWatchlist(AddToWatchlistRequest $request): JsonResponse
+    public function addToWatchlist(Request $request, int $auctionId): JsonResponse
     {
         $user = $request->user();
-        $auctionId = $request->auction_id;
 
         // Check if auction exists and is active
         $auction = Auction::findOrFail($auctionId);
         
-        if (!$auction->isActive()) {
-            return response()->json([
-                'message' => 'Cannot watch an inactive auction.',
-            ], 400);
-        }
+        // if (!$auction->isActive()) {
+        //     return response()->json([
+        //         'message' => 'Cannot watch an inactive auction.',
+        //     ], 400);
+        // }
 
         // Check if already in watchlist
         $existingWatchlist = $user->watchlist()->where('auction_id', $auctionId)->first();
@@ -230,6 +229,7 @@ class BuyerController extends Controller
         $watchlist = $user->watchlist()->create([
             'auction_id' => $auctionId,
         ]);
+        \Log::info($watchlist->toJson());
 
         // Increment watchers count
         $auction->incrementWatchers();
@@ -240,11 +240,17 @@ class BuyerController extends Controller
         ], 201);
     }
 
-    public function removeFromWatchlist(Request $request, int $watchlistId): JsonResponse
+    public function removeFromWatchlist(Request $request, int $auctionId): JsonResponse
     {
         $user = $request->user();
+        \Log::info($user->watchlist()->get()->toJson());
+        $watchlist = $user->watchlist()->where('auction_id', $auctionId)->first();
         
-        $watchlist = $user->watchlist()->findOrFail($watchlistId);
+        if (!$watchlist) {
+            return response()->json([
+                'message' => 'Auction not found in your watchlist.',
+            ], 404);
+        }
         
         // Decrement watchers count
         $watchlist->auction->decrementWatchers();

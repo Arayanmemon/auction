@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { useCategory } from "../CategoryContext";
-import { useAuth } from "../AuthContext";
+import { useAuthContext } from "../contexts/AuthContext";
 
 const categories = ["All", "Cars", "Phones", "Computers", "Collectibles", "Electronics"];
 
@@ -10,7 +10,10 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { selectedCategory, setSelectedCategory } = useCategory();
-  const { user, logout } = useAuth();
+  
+  // Add null check and default values
+  const authContext = useAuthContext();
+  const { user, logout } = authContext || { user: null, logout: () => {} };
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -33,7 +36,8 @@ const Navbar = () => {
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="text-xl font-bold text-[rgb(0,78,102)]">
-          AuctionSite
+          <img src="/vertex.png" alt="Vertex111" className="h-8 inline-block mr-2" />
+          Vertex111
         </Link>
 
         {/* Desktop Menu */}
@@ -67,10 +71,10 @@ const Navbar = () => {
           {/* Dashboard link (Buyer or Seller) */}
           {user && (
             <Link
-              to={user.role === "seller" ? "/seller-dashboard" : "/dashboard"}
+              to={user.profile?.account_type === "seller" ? "/seller-dashboard" : "/dashboard"}
               className="hover:text-[rgb(0,78,102)]"
             >
-              {user.role === "seller" ? "Seller Dashboard" : "Buyer Dashboard"}
+              {user.profile?.account_type === "seller" ? "Seller Dashboard" : "Buyer Dashboard"}
             </Link>
           )}
 

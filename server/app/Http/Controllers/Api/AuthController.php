@@ -38,6 +38,8 @@ class AuthController extends Controller
         // Create user profile
         UserProfile::create([
             'user_id' => $user->id,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'account_type' => 'buyer', // Default to buyer
         ]);
 
@@ -46,8 +48,9 @@ class AuthController extends Controller
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
+            'success' => true,
             'message' => 'Registration successful',
-            'user' => new UserResource($user->load('profile')),
+            'data' => new UserResource($user->load('profile')),
             'token' => $token,
         ], 201);
     }
@@ -64,8 +67,9 @@ class AuthController extends Controller
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
+            'success' => true,
             'message' => 'Login successful',
-            'user' => new UserResource($user->load(['profile', 'addresses'])),
+            'data' => new UserResource($user->load(['profile', 'addresses'])),
             'token' => $token,
         ]);
     }
@@ -81,12 +85,14 @@ class AuthController extends Controller
 
         if (!hash_equals((string) $request->hash, sha1($user->getEmailForVerification()))) {
             return response()->json([
+                'success' => false,
                 'message' => 'Invalid verification link',
             ], 400);
         }
 
         if ($user->hasVerifiedEmail()) {
             return response()->json([
+                'success' => true,
                 'message' => 'Email already verified',
             ]);
         }
@@ -96,8 +102,9 @@ class AuthController extends Controller
         }
 
         return response()->json([
+            'success' => true,
             'message' => 'Email verified successfully',
-            'user' => new UserResource($user->load(['profile', 'addresses'])),
+            'data' => new UserResource($user->load(['profile', 'addresses'])),
         ]);
     }
 
@@ -107,6 +114,7 @@ class AuthController extends Controller
 
         if ($user->hasVerifiedEmail()) {
             return response()->json([
+                'success' => true,
                 'message' => 'Email already verified',
             ], 400);
         }
@@ -114,6 +122,7 @@ class AuthController extends Controller
         $user->sendEmailVerificationNotification();
 
         return response()->json([
+            'success' => true,
             'message' => 'Verification email sent',
         ]);
     }
@@ -138,11 +147,13 @@ class AuthController extends Controller
 
         if (!$sent) {
             return response()->json([
+                'success' => false,
                 'message' => 'Failed to send verification code. Please try again.',
             ], 500);
         }
 
         return response()->json([
+            'success' => true,
             'message' => 'Verification code sent successfully',
             'expires_at' => $verification->expires_at,
         ]);
@@ -172,6 +183,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
+            'success' => true,
             'message' => 'Phone verified successfully',
             'user' => $user ? new UserResource($user->load(['profile', 'addresses'])) : null,
         ]);
@@ -179,10 +191,28 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        try {
+            $request->user()->currentAccessToken()->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Logout successful',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error during logout. Please try again.',
+            ], 500);
+        }
+    }
+
+    public function currentUser(Request $request): JsonResponse
+    {
+        $user = $request->user();
 
         return response()->json([
-            'message' => 'Logout successful',
+            'success' => true,
+            'data' => new UserResource($user->load(['profile', 'addresses'])),
         ]);
     }
 }
