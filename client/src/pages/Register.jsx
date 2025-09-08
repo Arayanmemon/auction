@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../AuthContext";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 const Register = () => {
   const { register } = useAuth();
@@ -20,6 +22,11 @@ const Register = () => {
     } else {
       setFormData({ ...formData, [name]: value });
     }
+  };
+
+  // Phone input handler
+  const handlePhoneChange = (value) => {
+    setFormData({ ...formData, phone: value });
   };
 
   const handleSubmit = (e) => {
@@ -66,15 +73,16 @@ const Register = () => {
           required
         />
 
-        <input
-          type="tel"
-          name="phone"
-          placeholder="Phone Number"
-          value={formData.phone}
-          onChange={handleChange}
-          className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
-          required
-        />
+        <div className="mt-3">
+          <PhoneInput
+            country={'pk'}
+            value={formData.phone}
+            onChange={handlePhoneChange}
+            inputClass="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+            inputStyle={{ width: '100%' }}
+            required
+          />
+        </div>
 
         <textarea
           name="address"
