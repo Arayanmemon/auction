@@ -16,6 +16,7 @@ Route::get('/user', function (Request $request) {
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
+    Route::post('verifyRegisterOtp', [AuthController::class, 'verifyRegistrationOtp']);
     Route::get('verify-email', [AuthController::class, 'verifyEmail'])->name('verification.verify');
     Route::post('send-otp', [AuthController::class, 'sendOtp']);
     Route::post('verify-phone', [AuthController::class, 'verifyPhone']);

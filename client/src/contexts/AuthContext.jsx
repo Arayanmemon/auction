@@ -74,12 +74,28 @@ export const AuthProvider = ({ children }) => {
       dispatch({ type: 'CLEAR_ERROR' });
       
       const result = await AuthService.register(userData);
-      localStorage.setItem('authToken', result.token);
-      dispatch({ type: 'SET_USER', payload: result.user });
+      // localStorage.setItem('authToken', result.token);
+      // dispatch({ type: 'SET_USER', payload: result.user });
+      dispatch({ type: 'SET_LOADING', payload: false });
       
       return result;
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message || 'Registration failed';
+      dispatch({ type: 'SET_ERROR', payload: errorMessage });
+      throw error;
+    }
+  };
+
+  const verifyOtp = async (otpData) => {
+    try {
+      dispatch({ type: 'SET_LOADING', payload: true });
+      dispatch({ type: 'CLEAR_ERROR' });
+      const result = await AuthService.verifyOtp(otpData);
+      localStorage.setItem('authToken', result.token);
+      dispatch({ type: 'SET_USER', payload: result.user });
+      return result;
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || error.message || 'OTP Verification failed';
       dispatch({ type: 'SET_ERROR', payload: errorMessage });
       throw error;
     }
@@ -104,6 +120,7 @@ export const AuthProvider = ({ children }) => {
     ...state,
     login,
     register,
+    verifyOtp,
     logout,
     clearError,
   };

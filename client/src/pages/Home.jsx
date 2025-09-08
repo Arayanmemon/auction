@@ -26,7 +26,7 @@ const Home = () => {
   useEffect(() => {
     const fetchSellerAuctions = async () => {
       try {
-        const response = await fetch(`/api/auctions/all`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auctions/all`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

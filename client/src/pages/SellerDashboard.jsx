@@ -34,7 +34,7 @@ const SellerDashboard = () => {
       try {
         setLoading(true);
         const token = localStorage.getItem("authToken");
-        const response = await fetch(`/api/seller/auctions`, {
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/seller/auctions`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'

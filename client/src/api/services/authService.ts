@@ -1,5 +1,5 @@
 import { apiClient } from '../client';
-import { ApiResponse, AuthResponse, LoginRequest, RegisterRequest, User } from '../types';
+import { ApiResponse, AuthResponse, LoginRequest, OtpVerificationRequest, RegisterRequest, User } from '../types';
 
 interface BackendAuthResponse {
   success: boolean;
@@ -20,8 +20,18 @@ export class AuthService {
   static async register(userData: RegisterRequest): Promise<AuthResponse> {
     const response = await apiClient.post<BackendAuthResponse>('/auth/register', userData);
     return {
+      message: response.message,
+      success: response.success
+    };
+  }
+
+  static async verifyOtp(userData: OtpVerificationRequest): Promise<AuthResponse> {
+    const response = await apiClient.post<BackendAuthResponse>('/auth/verifyRegisterOtp', userData);
+    return {
       user: response.data,
-      token: response.token
+      token: response.token,
+      success: response.success,
+      message: response.message
     };
   }
 

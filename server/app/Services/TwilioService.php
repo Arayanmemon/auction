@@ -41,7 +41,7 @@ class TwilioService
     public function sendVerificationCode(string $phone, string $code): bool
     {
         $message = "Your verification code is: {$code}. This code will expire in 10 minutes.";
-        
-        return $this->sendSms($phone, $message);
+        return true;
+        // return $this->sendSms($phone, $message);
     }
 }
