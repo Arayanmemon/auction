@@ -7,6 +7,8 @@ import AuctionDetail from "./pages/AuctionDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import BuyerDashboard from "./pages/BuyerDashboard";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 import SellerDashboard from "./pages/SellerDashboard";
 import BecomeSeller from "./pages/BecomeSeller";
 
@@ -26,6 +28,8 @@ const AppRouter = () => {
         <Route path="/auction/:id" element={<AuctionDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+  <Route path="/about" element={<About />} />
+  <Route path="/contact" element={<Contact />} />
 
         {/* Buyer Dashboard (any logged-in user) */}
         <Route

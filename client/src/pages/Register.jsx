@@ -1,4 +1,6 @@
 import { useState } from "react";
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import { useAuthContext } from "../contexts/AuthContext";
 import { FilePen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +28,11 @@ const Register = () => {
       setFormData({ ...formData, [name]: value });
     }
     if (error) clearError();
+  };
+
+  // Phone input handler
+  const handlePhoneChange = (value) => {
+    setFormData({ ...formData, phone: value });
   };
 
   const handleSubmit = async (e) => {
@@ -148,16 +155,16 @@ const Register = () => {
           disabled={loading}
         />
 
-        <input
-          type="tel"
-          name="phone"
-          placeholder="Phone Number"
-          value={formData.phone}
-          onChange={handleChange}
-          className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
-          required
-          disabled={loading}
-        />
+        <div className="mt-3">
+          <PhoneInput
+            country={'pk'}
+            value={formData.phone}
+            onChange={handlePhoneChange}
+            inputClass="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+            inputStyle={{ width: '100%' }}
+            required
+          />
+        </div>
 
         <textarea
           name="address"
