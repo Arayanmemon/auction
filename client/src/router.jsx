@@ -7,6 +7,10 @@ import AuctionDetail from "./pages/AuctionDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import BuyerDashboard from "./pages/BuyerDashboard";
+import Watchlist from "./pages/Watchlist";
+import AccountSettings from "./pages/AccountSettings";
+import ActiveBids from "./pages/ActiveBids";
+import PurchaseHistory from "./pages/PurchaseHistory";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import SellerDashboard from "./pages/SellerDashboard";
@@ -30,6 +34,10 @@ const AppRouter = () => {
         <Route path="/register" element={<Register />} />
   <Route path="/about" element={<About />} />
   <Route path="/contact" element={<Contact />} />
+  <Route path="/buyer/watchlist" element={<Watchlist />} />
+  <Route path="/buyer/account-settings" element={<AccountSettings />} />
+  <Route path="/buyer/active-bids" element={<ActiveBids />} />
+  <Route path="/buyer/purchase-history" element={<PurchaseHistory />} />
 
         {/* Buyer Dashboard (any logged-in user) */}
         <Route
