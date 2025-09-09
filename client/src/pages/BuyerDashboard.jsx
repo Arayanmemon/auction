@@ -52,23 +52,25 @@ const BuyerDashboard = () => {
         {/* Account Settings */}
         <div className="bg-white rounded-lg shadow p-4">
           <h2 className="text-xl font-semibold mb-3">Account Settings</h2>
-          <button
-            key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
-            className={`block text-left w-full py-2 px-4 rounded hover:bg-gray-100 font-medium ${activeTab === tab.key ? "bg-[rgb(0,78,102)] text-white" : "text-gray-700"}`}
-          >
-            {tab.name}
-          </button>
-        ))}
-        {user?.role !== "seller" && (
-          <button
-            onClick={() => navigate("/become-seller")}
-            className="mt-6 bg-[rgb(0,78,102)] text-white px-4 py-2 rounded hover:bg-[rgb(0,90,115)] transition"
-          >
-            Become a Seller
-          </button>
-        )}
-      </aside>
+      {tabs.map((tab) => (
+        <button
+          key={tab.key}
+          onClick={() => setActiveTab(tab.key)}
+          className={`block text-left w-full py-2 px-4 rounded hover:bg-gray-100 font-medium ${activeTab === tab.key ? "bg-[rgb(0,78,102)] text-white" : "text-gray-700"}`}
+        >
+          {tab.name}
+        </button>
+      ))}
+      {user?.role !== "seller" && (
+        <button
+          onClick={() => navigate("/become-seller")}
+          className="mt-6 bg-[rgb(0,78,102)] text-white px-4 py-2 rounded hover:bg-[rgb(0,90,115)] transition"
+        >
+          Become a Seller
+        </button>
+      )}
+        </div>
+      </div>
 
       {/* Main Content */}
       <main className="flex-1 p-8">
