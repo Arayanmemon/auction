@@ -1,0 +1,56 @@
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data: T;
+  message?: string;
+}
+
+export interface ApiError {
+  message: string;
+  code?: string;
+  details?: any;
+}
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AuthResponse {
+  user: User;
+  token: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface Auction {
+  id: string;
+  title: string;
+  description: string;
+  startingBid: number;
+  currentBid: number;
+  endTime: string;
+  sellerId: string;
+  status: 'active' | 'ended' | 'cancelled';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Bid {
+  id: string;
+  amount: number;
+  bidderId: string;
+  auctionId: string;
+  createdAt: string;
+}

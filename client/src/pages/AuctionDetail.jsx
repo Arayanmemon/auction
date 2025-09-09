@@ -1,35 +1,92 @@
 import { useParams } from "react-router-dom";
 import { heroAuctions as auctions } from "../data/heroAuctions";
 import CountdownTimer from "../components/CountdownTimer";
-import { useState } from "react";
-import { useAuth } from "../AuthContext";
+import { useEffect, useState } from "react";
+import { useAuthContext } from "../contexts/AuthContext";
 
 const AuctionDetail = () => {
   const { id } = useParams();
-  const auction = auctions.find((a) => a.id === parseInt(id));
-  const { user } = useAuth();
+  const [auction, setAuction] = useState(auctions);
+  const [selectedImage, setSelectedImage] = useState('');
+  const [bidAmount, setBidAmount] = useState("");
+  const [isSaved, setIsSaved] = useState(false);
+  const [currentBid, setCurrentBid] = useState(auction.current_bid);
+  const [bidHistory, setBidHistory] = useState([]);
+  // const auction = auctions.find((a) => a.id === parseInt(id));
+  const { user } = useAuthContext();
+  
+  useEffect(() => {
+    const fetchAuction = async () => {
+      try {
+        const response = await fetch(`/api/auction/${id}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        console.log(data);
+        setAuction(data.data || data);
+      } catch (error) {
+        console.error("Error fetching auction:", error);
+      }
+    };
+
+    const fetchAuctionBids = async () => {
+      try {
+        const response = await fetch(`/api/auction/${id}/bids`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log(data);
+        setBidHistory(data.data || []);
+      } catch (error) {
+        console.error("Error fetching auction bids:", error);
+      }
+    };
+
+    fetchAuction();
+    fetchAuctionBids();
+  }, [id]);
 
   if (!auction) {
     return <p className="text-center mt-10">Auction not found.</p>;
   }
 
   // Always return images array
-  const auctionImages =
-    auction.images && auction.images.length > 0 ? auction.images : [auction.image];
+  const auctionImages = auction.images && auction.images.length > 0 ? auction.images : [auction.image];
+  useEffect(() => {
+    if (auctionImages.length > 0) {
+      setSelectedImage(auctionImages[0]);
+    }
+  }, [auctionImages]);
 
-  const [selectedImage, setSelectedImage] = useState(auctionImages[0]);
-  const [bidAmount, setBidAmount] = useState("");
-  const [isSaved, setIsSaved] = useState(false);
-  const [currentBid, setCurrentBid] = useState(auction.currentBid);
-  const [bidHistory, setBidHistory] = useState(auction.bidHistory || []);
-
-  const toggleWishlist = () => setIsSaved((prev) => !prev);
+  const toggleWishlist = async () => {
+    try {
+      const response = await fetch(`/api/watchlist/${isSaved ? 'remove/' + id : 'add/' + id}`, {
+        method: isSaved ? 'DELETE' : 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem("authToken")}`,
+          'Content-Type': 'application/json'
+        },
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log(data);
+      setIsSaved((prev) => !prev);
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+    }
+  };
 
   // Place bid logic
-  const handlePlaceBid = () => {
+  const handlePlaceBid = async () => {
     const bidValue = parseFloat(bidAmount);
-    if (!bidValue || bidValue <= currentBid) {
-      alert("Bid must be greater than current bid!");
+    if (!bidValue || bidValue <= currentBid || bidValue < auction.starting_price) {
+      alert("Bid must be greater than current bid or starting price!");
       return;
     }
     if (!user) {
@@ -37,17 +94,33 @@ const AuctionDetail = () => {
       return;
     }
     // Add bid to history
-    const newBid = {
-      user: user.firstName + " " + user.lastName,
-      amount: bidValue,
-      time: new Date().toLocaleString(),
-    };
-    setBidHistory(prev => [newBid, ...prev]);
+    // const newBid = {
+    //   user: user.name,
+    //   amount: bidValue,
+    //   time: new Date().toLocaleString(),
+    // };
+    // setBidHistory(prev => [newBid, ...prev]);
     setCurrentBid(bidValue);
     setBidAmount("");
-    alert(`Bid placed: $${bidValue}`);
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`/api/auction/${id}/bid`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ amount: bidValue })
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error placing bid:", error);
+      alert("Failed to place bid. Please try again.");
+    }
   };
-
+  
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Auction Title */}
@@ -62,7 +135,7 @@ const AuctionDetail = () => {
               {auctionImages.map((img, index) => (
                 <img
                   key={index}
-                  src={img}
+                  src={'http://127.0.0.1:8000' + img}
                   alt={`Thumbnail ${index + 1}`}
                   className={`w-16 h-16 object-cover cursor-pointer border rounded ${
                     selectedImage === img
@@ -78,7 +151,7 @@ const AuctionDetail = () => {
           {/* Main Image */}
           <div className="relative flex-1 border rounded overflow-hidden group">
             <img
-              src={selectedImage}
+              src={'http://127.0.0.1:8000' + selectedImage}
               alt={auction.title}
               className="w-full h-96 object-contain transform transition-transform duration-300 group-hover:scale-110"
             />
@@ -105,31 +178,31 @@ const AuctionDetail = () => {
         {/* AUCTION INFO SECTION */}
         <div className="border rounded-lg p-5 shadow">
           {/* Estimate and End Time */}
-          {auction.estimateRange && (
+          {auction.starting_price && (
             <p className="text-gray-500 mb-1">
-              Estimate: {auction.estimateRange}
+              Starting Price: ${auction.starting_price}
             </p>
           )}
-          {auction.endTime && (
+          {auction.end_time && (
             <p className="text-sm text-gray-500 mb-3">
-              Ends on {auction.endTime.toLocaleString()}
+              Ends on {auction.end_time.toLocaleString()}
             </p>
           )}
 
           {/* Current Price & Bids */}
           <div className="flex items-baseline gap-2 mb-2">
             <p className="text-3xl font-bold text-[rgb(0,78,102)]">
-              ${currentBid}
+              ${auction.current_bid}
             </p>
             <span className="text-gray-500 text-sm">
-              ({bidHistory.length} bids)
+              ({auction.bid_count} bids)
             </span>
           </div>
 
           {/* Countdown Timer */}
-          {auction.endTime && (
+          {auction.end_time && (
             <div className="text-sm mb-3">
-              <CountdownTimer endTime={auction.endTime} />
+              <CountdownTimer endTime={auction.end_time} />
             </div>
           )}
 
@@ -141,7 +214,7 @@ const AuctionDetail = () => {
             type="number"
             value={bidAmount}
             onChange={(e) => setBidAmount(e.target.value)}
-            placeholder={`$${currentBid + 25}`}
+            placeholder={`$${auction.current_bid} or more`}
             className="border border-gray-300 rounded px-3 py-2 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
           />
 
@@ -154,9 +227,9 @@ const AuctionDetail = () => {
           </button>
 
           {/* Watchers Info */}
-          {auction.watchersCount && (
+          {auction.watchers_count && (
             <p className="text-sm text-gray-500 mt-3">
-              {auction.watchersCount} bidders are watching this item
+              {auction.watchers_count} bidders are watching this item
             </p>
           )}
         </div>
@@ -184,9 +257,9 @@ const AuctionDetail = () => {
               <tbody>
                 {bidHistory.map((bid, index) => (
                   <tr key={index} className="hover:bg-gray-50">
-                    <td className="p-3 border-b">{bid.user}</td>
+                    <td className="p-3 border-b">{bid.bidder['name']}</td>
                     <td className="p-3 border-b">${bid.amount}</td>
-                    <td className="p-3 border-b">{bid.time}</td>
+                    <td className="p-3 border-b">{bid.created_at}</td>
                   </tr>
                 ))}
               </tbody>

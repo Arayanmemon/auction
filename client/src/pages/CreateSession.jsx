@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../contexts/AuthContext";
 
 // Dummy categories (later fetch from backend)
 const categories = ["Cars", "Phones", "Computers", "Collectibles", "Electronics"];
@@ -20,6 +21,10 @@ const CreateSession = () => {
     time: "",
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { user } = useAuthContext();
+
   const navigate = useNavigate();
 
   // Handle text/number inputs
@@ -36,28 +41,74 @@ const CreateSession = () => {
   };
 
   // Submit
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
-    const sessionId = Date.now();
-    const endTime = new Date();
-    endTime.setDate(endTime.getDate() + parseInt(formData.duration));
+    try {
+      // Calculate start and end times
+      const startDateTime = new Date(`${formData.date}T${formData.time}`);
+      const endDateTime = new Date(startDateTime);
+      endDateTime.setDate(endDateTime.getDate() + parseInt(formData.duration));
 
-    const newSession = {
-      ...formData,
-      id: sessionId,
-      endTime,
-      items: [],
-      status: "draft",
-    };
+      // Prepare form data for backend
+      const auctionData = new FormData();
+      auctionData.append('title', formData.title);
+      auctionData.append('description', formData.description);
+      // auctionData.append('category', formData.category);
+      auctionData.append('starting_price', formData.startingPrice);
+      auctionData.append('reserve_price', formData.reservePrice);
+      auctionData.append('buy_now_price', formData.buyNowPrice || '');
+      auctionData.append('start_time', startDateTime.toISOString());
+      auctionData.append('end_time', endDateTime.toISOString());
+      auctionData.append('shipping', formData.shipping);
+      auctionData.append('location', formData.location);
+      auctionData.append('category_id', 1);
+      // Handle image files
+      const imageFiles = document.querySelector('input[type="file"]').files;
+      for (let i = 0; i < imageFiles.length; i++) {
+        auctionData.append('images[]', imageFiles[i]);
+      }
 
-    localStorage.setItem(`session-${sessionId}`, JSON.stringify(newSession));
-    navigate(`/add-items/${sessionId}`);
+      const token = localStorage.getItem("authToken");
+      const response = await fetch(`/api/seller/auction/create`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',  
+        },
+        body: auctionData
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create auction');
+      }
+
+      const newAuction = await response.json();
+      console.log('Auction created:', newAuction);
+      
+      // Redirect to seller dashboard
+      navigate('/seller-dashboard');
+      
+    } catch (err) {
+      console.error('Error creating auction:', err);
+      setError(err.message || 'Failed to create auction. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Create New Auction</h1>
+
+      {error && (
+        <div className="max-w-2xl mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+          {error}
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit}
@@ -210,9 +261,12 @@ const CreateSession = () => {
         {/* Submit */}
         <button
           type="submit"
-          className="bg-[rgb(0,78,102)] text-white px-6 py-2 rounded hover:bg-[rgb(0,90,115)]"
+          disabled={loading}
+          className={`bg-[rgb(0,78,102)] text-white px-6 py-2 rounded hover:bg-[rgb(0,90,115)] transition ${
+            loading ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
         >
-          Continue to Add Items
+          {loading ? 'Creating Auction...' : 'Create Auction'}
         </button>
       </form>
     </div>

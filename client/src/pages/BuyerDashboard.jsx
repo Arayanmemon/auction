@@ -1,15 +1,8 @@
-import React from "react";
-import DataTable from "../components/DataTable";
-import NotificationList from "../components/NotificationList";
 import { useAuth } from "../AuthContext";
-import { useNavigate, Link, useLocation } from "react-router-dom";
-import ActiveBids from "./ActiveBids";
-import Watchlist from "./Watchlist";
-import PurchaseHistory from "./PurchaseHistory";
-import AccountSettings from "./AccountSettings";
+import { useNavigate } from "react-router-dom";
 
 const BuyerDashboard = () => {
-  const { user } = useAuth();
+  const { user } = useAuthContext();
   const navigate = useNavigate();
 
   const location = useLocation(); 
@@ -25,11 +18,40 @@ const BuyerDashboard = () => {
   const [activeTab, setActiveTab] = React.useState("active-bids");
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg p-6 flex flex-col gap-2">
-        <h2 className="text-2xl font-bold mb-6 text-[rgb(0,78,102)]">Dashboard</h2>
-        {tabs.map(tab => (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6 text-[rgb(0,78,102)]">
+        Welcome, {user?.firstName || "Buyer"}
+      </h1>
+
+      {/* Sections */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Active Bids */}
+        <div className="bg-white rounded-lg shadow p-4">
+          <h2 className="text-xl font-semibold mb-3">Active Bids</h2>
+          <p className="text-gray-600 text-sm">No active bids yet.</p>
+        </div>
+
+        {/* Purchase History */}
+        <div className="bg-white rounded-lg shadow p-4">
+          <h2 className="text-xl font-semibold mb-3">Purchase History</h2>
+          <p className="text-gray-600 text-sm">No purchases yet.</p>
+        </div>
+
+        {/* Watchlist */}
+        <div className="bg-white rounded-lg shadow p-4">
+          <h2 className="text-xl font-semibold mb-3">Watchlist</h2>
+          <p className="text-gray-600 text-sm">No items in watchlist.</p>
+        </div>
+
+        {/* Notifications */}
+        <div className="bg-white rounded-lg shadow p-4">
+          <h2 className="text-xl font-semibold mb-3">Notifications</h2>
+          <p className="text-gray-600 text-sm">No new notifications.</p>
+        </div>
+
+        {/* Account Settings */}
+        <div className="bg-white rounded-lg shadow p-4">
+          <h2 className="text-xl font-semibold mb-3">Account Settings</h2>
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}

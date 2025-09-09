@@ -29,7 +29,7 @@ const AppRouter = () => {
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/auctions" element={<AuctionList />} />
-        <Route path="/auctions/:id" element={<AuctionDetail />} />
+        <Route path="/auction/:id" element={<AuctionDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
   <Route path="/about" element={<About />} />
