@@ -72,7 +72,7 @@ const CreateSession = () => {
       }
 
       const token = localStorage.getItem("authToken");
-      const response = await fetch(`/api/seller/auction/create`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/seller/auction/create`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

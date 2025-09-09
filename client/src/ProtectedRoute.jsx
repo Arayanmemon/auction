@@ -19,7 +19,7 @@ const ProtectedRoute = ({ children, role }) => {
   }
 
   // If role is specified and doesn't match user's role, block access
-  if (role && user.profile?.account_type !== role) {
+  if (role && !user.is_seller) {
     return <Navigate to="/" replace />;
   }
 

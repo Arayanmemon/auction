@@ -18,7 +18,7 @@ const AuctionDetail = () => {
   useEffect(() => {
     const fetchAuction = async () => {
       try {
-        const response = await fetch(`/api/auction/${id}`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auction/${id}`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -34,7 +34,7 @@ const AuctionDetail = () => {
 
     const fetchAuctionBids = async () => {
       try {
-        const response = await fetch(`/api/auction/${id}/bids`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auction/${id}/bids`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -64,7 +64,7 @@ const AuctionDetail = () => {
 
   const toggleWishlist = async () => {
     try {
-      const response = await fetch(`/api/watchlist/${isSaved ? 'remove/' + id : 'add/' + id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/watchlist/${isSaved ? 'remove/' + id : 'add/' + id}`, {
         method: isSaved ? 'DELETE' : 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem("authToken")}`,
@@ -104,7 +104,7 @@ const AuctionDetail = () => {
     setBidAmount("");
     try {
       const token = localStorage.getItem("authToken");
-      const response = await fetch(`/api/auction/${id}/bid`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auction/${id}/bid`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -135,7 +135,7 @@ const AuctionDetail = () => {
               {auctionImages.map((img, index) => (
                 <img
                   key={index}
-                  src={'http://127.0.0.1:8000' + img}
+                  src={`${import.meta.env.VITE_API_URL}` + img}
                   alt={`Thumbnail ${index + 1}`}
                   className={`w-16 h-16 object-cover cursor-pointer border rounded ${
                     selectedImage === img
@@ -151,7 +151,7 @@ const AuctionDetail = () => {
           {/* Main Image */}
           <div className="relative flex-1 border rounded overflow-hidden group">
             <img
-              src={'http://127.0.0.1:8000' + selectedImage}
+              src={`${import.meta.env.VITE_API_URL}` + selectedImage}
               alt={auction.title}
               className="w-full h-96 object-contain transform transition-transform duration-300 group-hover:scale-110"
             />

@@ -6,8 +6,10 @@ import { FilePen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Register = () => {
-  const { register, loading, error, clearError } = useAuthContext();
+  const { register, verifyOtp, loading, error, clearError } = useAuthContext();
   const navigate = useNavigate();
+  const [isOTPSent, setIsOTPSent] = useState(false);
+  const [otp, setOtp] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -36,7 +38,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await register({
+      const res = await register({
         name: `${formData.firstName} ${formData.lastName}`,
         first_name: formData.firstName,
         last_name: formData.lastName,
@@ -45,7 +47,26 @@ const Register = () => {
         email: formData.email,
         password: formData.password
       });
-      navigate('/'); // Redirect to home page on successful login
+      if (res.success) {
+        setIsOTPSent(true);
+        console.log("OTP sent to your phone.");
+      } else {
+        throw new Error(res.message || "Registration failed");
+      }
+    } catch (error) {
+      // Error is handled by the context
+    }
+  };
+
+  const handleOtpSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await verifyOtp({ phone: formData.phone, code: otp });
+      if (res.success) {
+        navigate('/dashboard'); // Redirect to home page on successful OTP verification
+      } else {
+        throw new Error(res.message || "OTP verification failed");
+      }
     } catch (error) {
       // Error is handled by the context
     }
@@ -53,6 +74,39 @@ const Register = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      {isOTPSent && (
+        <form
+        onSubmit={handleOtpSubmit}
+        className="max-w-md bg-white p-6 rounded-lg shadow w-full"
+        >
+        <h2 className="text-2xl font-bold text-center mb-4 text-[rgb(0,78,102)]">
+          OTP
+        </h2>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+        <input
+            name="code"
+            placeholder="Enter OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            className="border rounded px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+            required
+            disabled={loading}
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-4 w-full bg-[rgb(0,78,102)] text-white py-2 rounded hover:bg-[rgb(0,90,115)] transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+          {/* {loading ? "Registering..." : "Register"} */}
+          Send
+        </button>
+      </form>
+      )}
+      {!isOTPSent && (
       <form
         onSubmit={handleSubmit}
         className="max-w-md bg-white p-6 rounded-lg shadow w-full"
@@ -147,6 +201,7 @@ const Register = () => {
           {loading ? "Registering..." : "Register"}
         </button>
       </form>
+      )}
     </div>
   );
 };

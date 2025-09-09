@@ -19,8 +19,10 @@ export interface User {
 }
 
 export interface AuthResponse {
-  user: User;
-  token: string;
+  user?: User;
+  token?: string;
+  message?: string;
+  success?: boolean; 
 }
 
 export interface LoginRequest {
@@ -32,6 +34,12 @@ export interface RegisterRequest {
   name: string;
   email: string;
   password: string;
+}
+
+export interface OtpVerificationRequest {
+  email?: string;
+  phone?: string;
+  otp: string;
 }
 
 export interface Auction {

@@ -11,6 +11,7 @@ use App\Http\Resources\UserResource;
 use App\Models\PhoneVerification;
 use App\Models\User;
 use App\Models\UserProfile;
+use App\Models\Otp;
 use App\Services\TwilioService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Verified;
@@ -28,19 +29,84 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $request): JsonResponse
     {
-        $user = User::create([
+        // Check if user already exists
+        if (User::where('email', $request->email)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User with this email already exists',
+            ], 422);
+        }
+
+        if (User::where('phone', $request->phone)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User with this phone number already exists',
+            ], 422);
+        }
+
+        // Prepare user data
+        $userData = [
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
             'phone' => $request->phone,
-        ]);
-        
-        // Create user profile
-        UserProfile::create([
-            'user_id' => $user->id,
+            'address' => $request->address,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
-            'account_type' => 'buyer', // Default to buyer
+        ];
+
+        // Generate OTP for registration
+        $otp = Otp::generateForRegistration($request->phone, $request->ip(), $userData);
+        \Log::info('otp code: ' . $otp->code);
+        // Send OTP via SMS
+        $sent = $this->twilioService->sendVerificationCode($request->phone, $otp->code);
+
+        if (!$sent) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send verification code. Please try again.',
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registration initiated. Please verify your phone number with the OTP sent.',
+            'phone' => $request->phone,
+            'expires_at' => $otp->expires_at,
+        ], 200);
+    }
+
+    public function verifyRegistrationOtp(Request $request): JsonResponse
+    {
+        $request->validate([
+            'phone' => ['required', 'string'],
+            'code' => ['required', 'string', 'size:6'],
+        ]);
+
+        $otp = Otp::findValidCode($request->phone, $request->code, 'registration');
+
+        if (!$otp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired verification code',
+            ], 400);
+        }
+
+        // Mark OTP as verified
+        $otp->markAsVerified();
+
+        // Create user with data from OTP
+        $userData = $otp->data;
+        $user = User::create([
+            'name' => $userData['name'],
+            'first_name' => $userData['first_name'],
+            'last_name' => $userData['last_name'],
+            'email' => $userData['email'],
+            'password' => Hash::make($userData['password']),
+            'phone' => $userData['phone'],
+            'address' => $userData['address'] ?? null,
+            'phone_verified_at' => now(),
+            'is_seller' => false,
         ]);
 
         event(new Registered($user));
@@ -49,8 +115,8 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Registration successful',
-            'data' => new UserResource($user->load('profile')),
+            'message' => 'Registration completed successfully',
+            'data' => new UserResource($user),
             'token' => $token,
         ], 201);
     }
@@ -69,7 +135,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
-            'data' => new UserResource($user->load(['profile', 'addresses'])),
+            'data' => new UserResource($user->load(['addresses'])),
             'token' => $token,
         ]);
     }
@@ -104,7 +170,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Email verified successfully',
-            'data' => new UserResource($user->load(['profile', 'addresses'])),
+            // 'data' => new UserResource($user->load(['profile', 'addresses'])),
         ]);
     }
 
@@ -212,7 +278,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => new UserResource($user->load(['profile', 'addresses'])),
+            'data' => new UserResource($user->load(['seller', 'addresses'])),
         ]);
     }
 }

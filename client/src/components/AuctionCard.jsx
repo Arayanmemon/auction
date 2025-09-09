@@ -7,7 +7,7 @@ const AuctionCard = ({ auction }) => {
       {/* Auction Image */}
       <Link to={`/auction/${auction.id}`}>
         <img
-          src={auction.images ? `http://127.0.0.1:8000${auction.images[0]}` : 'https://placehold.co/400x400/png?text=Auction+Item'} // First image as thumbnail
+          src={auction.images ? `${import.meta.env.VITE_API_URL}${auction.images[0]}` : 'https://placehold.co/400x400/png?text=Auction+Item'} // First image as thumbnail
           alt={auction.title}
           className="w-full h-48 object-cover"
         />

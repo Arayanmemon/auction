@@ -71,10 +71,10 @@ const Navbar = () => {
           {/* Dashboard link (Buyer or Seller) */}
           {user && (
             <Link
-              to={user.profile?.account_type === "seller" ? "/seller-dashboard" : "/dashboard"}
+              to={user.is_seller ? "/seller-dashboard" : "/dashboard"}
               className="hover:text-[rgb(0,78,102)]"
             >
-              {user.profile?.account_type === "seller" ? "Seller Dashboard" : "Buyer Dashboard"}
+              {user.is_seller ? "Seller Dashboard" : "Buyer Dashboard"}
             </Link>
           )}
 
