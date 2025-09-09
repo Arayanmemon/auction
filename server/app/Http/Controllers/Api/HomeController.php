@@ -93,6 +93,7 @@ class HomeController extends Controller
             'bidder_id' => $request->user()->id,
             'amount' => $request->amount,
             'ip_address' => $request->ip(),
+            'is_winning' => true,
         ]);
 
         $bid_count = $auction->bids()->count();

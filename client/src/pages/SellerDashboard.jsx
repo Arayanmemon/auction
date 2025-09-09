@@ -18,7 +18,8 @@ const SellerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   // Dummy seller id for demonstration
-  const sellerId = user?.id || 1;
+  const [sellerId, setSellerId] = useState(user?.id || 1);
+  const [refreshFlag, setRefreshFlag] = useState(false); // To trigger re-fetching
 
   // Dummy payout methods state (should come from backend)
   const [payoutMethods, setPayoutMethods] = useState({
@@ -48,6 +49,7 @@ const SellerDashboard = () => {
         const data = await response.json();
         console.log(data);
         setAuctions(data.auctions);
+        setRefreshFlag(false);
         setError(null);
       } catch (error) {
         console.error("Error fetching auctions:", error);
@@ -62,7 +64,7 @@ const SellerDashboard = () => {
     if (user) {
       fetchSellerAuctions();
     }
-  }, [user, sellerId]);
+  }, [user, sellerId, refreshFlag]);
 
   // Use fetched auctions instead of dummy data
   const myAuctions = loading ? [] : (auctions.length > 0 ? auctions : heroAuctions.filter(a => a.sellerId === sellerId));
@@ -95,7 +97,26 @@ const SellerDashboard = () => {
   // Handler for deleting auction (dummy)
   const handleDeleteAuction = (auctionId) => {
     if (window.confirm("Are you sure you want to delete this auction?")) {
-      alert(`Auction ${auctionId} deleted (feature coming soon)`);
+      // Call backend API to delete auction
+      const token = localStorage.getItem("authToken");
+      fetch(`${import.meta.env.VITE_API_URL}/api/seller/auction/delete/${auctionId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        console.log(`Auction ${auctionId} deleted`);
+        setRefreshFlag(true);
+      })
+      .catch(error => {
+        console.error("Error deleting auction:", error);
+        alert("Failed to delete auction");
+      });
     }
   };
 

@@ -1,4 +1,4 @@
-import { useAuth } from "../AuthContext";
+import { useAuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
@@ -11,39 +11,32 @@ const payoutMethodsList = [
 ];
 
 const BecomeSeller = () => {
-  const { user, becomeSeller } = useAuth();
+  const { user } = useAuthContext();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    sellerType: "individual", // 'individual' or 'store'
-    storeName: "",
-    storeDescription: "",
-    storeLogo: "",
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
-    email: user?.email || "",
-    phone: user?.phone || "",
-    address: user?.address || "",
-    zip: user?.zip || "",
-    state: user?.state || "",
-    country: user?.country || "",
-    password: user?.password || "",
-    profilePic: user?.profilePic || "",
+    seller_type: "individual", // 'individual' or 'store'
+    store_name: "",
+    store_description: "",
+    store_logo: null,
+    zip: "",
+    state: "",
+    country: "",
     // Payout methods
-    bank: false,
-    paypal: false,
-    card: false,
-    bankIBAN: "",
-    bankRouting: "",
-    bankAccount: "",
-    paypalDetails: "",
-    cardDetails: "",
+    bank_enabled: false,
+    paypal_enabled: false,
+    card_enabled: false,
+    bank_iban: "",
+    bank_routing: "",
+    bank_account: "",
+    paypal_details: "",
+    card_details: "",
     // KYC & Tax
-    taxForm: "",
-    taxId: "",
-    dob: "",
-    legalTaxAddress: "",
-    govId: null,
+    tax_form: "",
+    tax_id: "",
+    date_of_birth: "",
+    legal_tax_address: "",
+    gov_id: null,
     selfie: null,
   });
 
@@ -51,7 +44,7 @@ const BecomeSeller = () => {
 
   const handleChange = e => {
     const { name, value, type, checked, files } = e.target;
-    if (name === "storeLogo" || name === "govId" || name === "selfie") {
+    if (name === "store_logo" || name === "gov_id" || name === "selfie") {
       setForm(prev => ({ ...prev, [name]: files[0] }));
     } else {
       setForm(prev => ({
@@ -62,17 +55,62 @@ const BecomeSeller = () => {
   };
 
   // At least one primary payout method must be active
-  const hasActivePayout = form.bank || form.paypal || form.card;
+  const hasActivePayout = form.bank_enabled || form.paypal_enabled || form.card_enabled;
 
-  const handleSubmit = e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!hasActivePayout) {
-      setError("You must activate at least one payout method (Bank or PayPal)");
+      setError("You must activate at least one payout method (Bank, PayPal, or Card)");
       return;
     }
-    // Add validation for required fields if needed
-    becomeSeller(form); // Pass form data to context/backend
-    navigate("/seller-dashboard");
+    
+    try {
+      const formData = new FormData();
+      formData.append('seller_type', form.seller_type);
+      formData.append('store_name', form.store_name);
+      formData.append('store_description', form.store_description);
+      if (form.store_logo) formData.append('store_logo', form.store_logo);
+      formData.append('zip', form.zip);
+      formData.append('state', form.state);
+      formData.append('country', form.country);
+      formData.append('bank_enabled', form.bank_enabled);
+      formData.append('paypal_enabled', form.paypal_enabled);
+      formData.append('card_enabled', form.card_enabled);
+      formData.append('bank_iban', form.bank_iban);
+      formData.append('bank_routing', form.bank_routing);
+      formData.append('bank_account', form.bank_account);
+      formData.append('paypal_details', form.paypal_details);
+      formData.append('card_details', form.card_details);
+      formData.append('tax_form', form.tax_form);
+      formData.append('tax_id', form.tax_id);
+      formData.append('date_of_birth', form.date_of_birth);
+      formData.append('legal_tax_address', form.legal_tax_address);
+      if (form.gov_id) formData.append('gov_id', form.gov_id);
+      if (form.selfie) formData.append('selfie', form.selfie);
+
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/seller/become-seller`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          'Accept': 'application/json', 
+        },
+        body: formData,
+      });
+      
+      const data = await res.json();
+      
+      if (data.success) {
+        navigate("/seller-dashboard");
+      } else {
+        setError(data.message || "Failed to submit seller application");
+      }
+    } catch (error) {
+      console.error("Error submitting seller form:", error);
+      setError("Failed to submit form. Please try again.");
+    }
   };
 
   return (
@@ -88,9 +126,9 @@ const BecomeSeller = () => {
             <label className="flex items-center cursor-pointer">
               <input
                 type="radio"
-                name="sellerType"
+                name="seller_type"
                 value="individual"
-                checked={form.sellerType === "individual"}
+                checked={form.seller_type === "individual"}
                 onChange={handleChange}
                 className="mr-2 accent-[rgb(0,78,102)]"
               />
@@ -99,9 +137,9 @@ const BecomeSeller = () => {
             <label className="flex items-center cursor-pointer">
               <input
                 type="radio"
-                name="sellerType"
+                name="seller_type"
                 value="store"
-                checked={form.sellerType === "store"}
+                checked={form.seller_type === "store"}
                 onChange={handleChange}
                 className="mr-2 accent-[rgb(0,78,102)]"
               />
@@ -112,12 +150,12 @@ const BecomeSeller = () => {
   <div className="flex flex-col md:grid md:grid-cols-2 gap-8">
           {/* Left column: Store fields if sellerType is store, Individual fields */}
           <div className="flex flex-col gap-6 bg-gray-50 p-4 md:p-6 rounded-lg border border-gray-100">
-            {form.sellerType === "store" && (
+            {form.seller_type === "store" && (
               <div className="mb-4">
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">Store Details</h3>
-                <input name="storeName" value={form.storeName} onChange={handleChange} placeholder="Store Name (optional)" className="border p-2 rounded mb-2 w-full" />
-                <textarea name="storeDescription" value={form.storeDescription} onChange={handleChange} placeholder="Store Description (optional)" className="border p-2 rounded mb-2 w-full" />
-                <input type="file" name="storeLogo" onChange={handleChange} className="border p-2 rounded mb-2 w-full" accept="image/*" />
+                <input name="store_name" value={form.store_name} onChange={handleChange} placeholder="Store Name (optional)" className="border p-2 rounded mb-2 w-full" />
+                <textarea name="store_description" value={form.store_description} onChange={handleChange} placeholder="Store Description (optional)" className="border p-2 rounded mb-2 w-full" />
+                <input type="file" name="store_logo" onChange={handleChange} className="border p-2 rounded mb-2 w-full" accept="image/*" />
               </div>
             )}
             <div className="mb-4">
@@ -136,32 +174,30 @@ const BecomeSeller = () => {
               <input name="zip" value={form.zip} onChange={handleChange} placeholder="ZIP" className="border p-2 rounded mb-2 w-full" required />
               <input name="state" value={form.state} onChange={handleChange} placeholder="State" className="border p-2 rounded mb-2 w-full" required />
               <input name="country" value={form.country} onChange={handleChange} placeholder="Country" className="border p-2 rounded mb-2 w-full" required />
-              <input name="password" value={form.password} onChange={handleChange} placeholder="Password" className="border p-2 rounded mb-2 w-full" type="password" required />
-              <input name="profilePic" value={form.profilePic} onChange={handleChange} placeholder="Profile Picture URL (optional)" className="border p-2 rounded mb-2 w-full" />
             </div>
             <div className="mb-4">
               <h3 className="text-lg font-semibold text-gray-700 mb-2">Payout Methods</h3>
               <label className="flex items-center mb-2">
-                <input type="checkbox" name="bank" checked={form.bank} onChange={handleChange} className="mr-2" /> Bank Account
+                <input type="checkbox" name="bank_enabled" checked={form.bank_enabled} onChange={handleChange} className="mr-2" /> Bank Account
               </label>
-              {form.bank && (
+              {form.bank_enabled && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
-                  <input name="bankIBAN" value={form.bankIBAN} onChange={handleChange} placeholder="IBAN" className="border p-2 rounded w-full" />
-                  <input name="bankRouting" value={form.bankRouting} onChange={handleChange} placeholder="Routing Number" className="border p-2 rounded w-full" />
-                  <input name="bankAccount" value={form.bankAccount} onChange={handleChange} placeholder="Account Number" className="border p-2 rounded w-full" />
+                  <input name="bank_iban" value={form.bank_iban} onChange={handleChange} placeholder="IBAN" className="border p-2 rounded w-full" />
+                  <input name="bank_routing" value={form.bank_routing} onChange={handleChange} placeholder="Routing Number" className="border p-2 rounded w-full" />
+                  <input name="bank_account" value={form.bank_account} onChange={handleChange} placeholder="Account Number" className="border p-2 rounded w-full" />
                 </div>
               )}
               <label className="flex items-center mb-2">
-                <input type="checkbox" name="paypal" checked={form.paypal} onChange={handleChange} className="mr-2" /> PayPal
+                <input type="checkbox" name="paypal_enabled" checked={form.paypal_enabled} onChange={handleChange} className="mr-2" /> PayPal
               </label>
-              {form.paypal && (
-                <input name="paypalDetails" value={form.paypalDetails} onChange={handleChange} placeholder="PayPal Email/Details" className="border p-2 rounded mb-2 w-full" />
+              {form.paypal_enabled && (
+                <input name="paypal_details" value={form.paypal_details} onChange={handleChange} placeholder="PayPal Email/Details" className="border p-2 rounded mb-2 w-full" />
               )}
               <label className="flex items-center mb-2">
-                <input type="checkbox" name="card" checked={form.card} onChange={handleChange} className="mr-2" /> Credit/Debit Card (Stripe/Square)
+                <input type="checkbox" name="card_enabled" checked={form.card_enabled} onChange={handleChange} className="mr-2" /> Credit/Debit Card (Stripe/Square)
               </label>
-              {form.card && (
-                <input name="cardDetails" value={form.cardDetails} onChange={handleChange} placeholder="Card Details (tokenized or last 4 digits)" className="border p-2 rounded mb-2 w-full" />
+              {form.card_enabled && (
+                <input name="card_details" value={form.card_details} onChange={handleChange} placeholder="Card Details (tokenized or last 4 digits)" className="border p-2 rounded mb-2 w-full" />
               )}
               {!hasActivePayout && (
                 <p className="text-red-600 mt-2">You must activate at least one payout method (PayPal, Card, or Bank) to list items.</p>
@@ -169,16 +205,16 @@ const BecomeSeller = () => {
             </div>
             <div className="mb-4">
               <h3 className="text-lg font-semibold text-gray-700 mb-2">KYC & Tax Information</h3>
-              <select name="taxForm" value={form.taxForm} onChange={handleChange} className="border p-2 rounded mb-2 w-full" required>
+              <select name="tax_form" value={form.tax_form} onChange={handleChange} className="border p-2 rounded mb-2 w-full" required>
                 <option value="">Select Tax Form</option>
                 <option value="W-9">W-9 (US)</option>
                 <option value="W-8BEN">W-8BEN (Non-US)</option>
               </select>
-              <input name="taxId" value={form.taxId} onChange={handleChange} placeholder="Tax ID (SSN/ITIN/EIN or equivalent)" className="border p-2 rounded mb-2 w-full" required />
-              <input name="dob" value={form.dob} onChange={handleChange} type="date" placeholder="Date of Birth" className="border p-2 rounded mb-2 w-full" required />
-              <input name="legalTaxAddress" value={form.legalTaxAddress} onChange={handleChange} placeholder="Legal/Tax Address" className="border p-2 rounded mb-2 w-full" required />
+              <input name="tax_id" value={form.tax_id} onChange={handleChange} placeholder="Tax ID (SSN/ITIN/EIN or equivalent)" className="border p-2 rounded mb-2 w-full" required />
+              <input name="date_of_birth" value={form.date_of_birth} onChange={handleChange} type="date" placeholder="Date of Birth" className="border p-2 rounded mb-2 w-full" required />
+              <input name="legal_tax_address" value={form.legal_tax_address} onChange={handleChange} placeholder="Legal/Tax Address" className="border p-2 rounded mb-2 w-full" required />
               <label className="block mb-2">Government ID Upload (passport/driver’s license)</label>
-              <input type="file" name="govId" onChange={handleChange} className="border p-2 rounded mb-2 w-full" accept="image/*,.pdf" />
+              <input type="file" name="gov_id" onChange={handleChange} className="border p-2 rounded mb-2 w-full" accept="image/*,.pdf" />
               <label className="block mb-2">Optional Selfie/Live Check</label>
               <input type="file" name="selfie" onChange={handleChange} className="border p-2 rounded mb-2 w-full" accept="image/*" />
             </div>

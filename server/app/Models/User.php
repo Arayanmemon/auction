@@ -22,9 +22,18 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
         'phone',
+        'address',
+        'profile_image',
+        'bio',
+        'website',
+        'is_seller',
+        'phone_verified_at',
+        'email_verified_at',
     ];
 
     /**
@@ -50,17 +59,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'phone_verified_at' => 'datetime',
             'phone_verification_code_expires_at' => 'datetime',
             'password' => 'hashed',
+            'is_seller' => 'boolean',
         ];
-    }
-
-    /**
-     * Get the user's profile.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
-     */
-    public function profile(): HasOne
-    {
-        return $this->hasOne(UserProfile::class);
     }
 
     /**
@@ -219,5 +219,42 @@ class User extends Authenticatable implements MustVerifyEmail
     public function payoutMethods(): HasMany
     {
         return $this->hasMany(PayoutMethod::class);
+    }
+
+    // Seller related methods
+    public function canBecomeSeller(): bool
+    {
+        return !$this->is_seller && $this->hasVerifiedPhone() && $this->hasVerifiedEmail();
+    }
+
+    public function isSeller(): bool
+    {
+        return $this->is_seller && $this->seller()->exists();
+    }
+
+    public function isVerifiedSeller(): bool
+    {
+        return $this->isSeller() && $this->seller->is_verified;
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        return trim($this->first_name . ' ' . $this->last_name) ?: $this->name;
+    }
+
+    public function getProfileImageUrlAttribute(): ?string
+    {
+        return $this->profile_image ? asset('storage/' . $this->profile_image) : null;
+    }
+
+    // Relationships
+    public function seller(): HasOne
+    {
+        return $this->hasOne(Seller::class);
+    }
+
+    public function getPhoneForVerification(): string
+    {
+        return $this->phone;
     }
 }

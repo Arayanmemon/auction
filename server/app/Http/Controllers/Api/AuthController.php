@@ -50,6 +50,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => $request->password,
             'phone' => $request->phone,
+            'address' => $request->address,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
         ];
@@ -98,18 +99,14 @@ class AuthController extends Controller
         $userData = $otp->data;
         $user = User::create([
             'name' => $userData['name'],
+            'first_name' => $userData['first_name'],
+            'last_name' => $userData['last_name'],
             'email' => $userData['email'],
             'password' => Hash::make($userData['password']),
             'phone' => $userData['phone'],
+            'address' => $userData['address'] ?? null,
             'phone_verified_at' => now(),
-        ]);
-
-        // Create user profile
-        UserProfile::create([
-            'user_id' => $user->id,
-            'first_name' => $userData['first_name'],
-            'last_name' => $userData['last_name'],
-            'account_type' => 'buyer', // Default to buyer
+            'is_seller' => false,
         ]);
 
         event(new Registered($user));
@@ -119,7 +116,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Registration completed successfully',
-            'data' => new UserResource($user->load('profile')),
+            'data' => new UserResource($user),
             'token' => $token,
         ], 201);
     }
@@ -138,7 +135,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
-            'data' => new UserResource($user->load(['profile', 'addresses'])),
+            'data' => new UserResource($user->load(['addresses'])),
             'token' => $token,
         ]);
     }
@@ -281,7 +278,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => new UserResource($user->load(['profile', 'addresses'])),
+            'data' => new UserResource($user->load(['seller', 'addresses'])),
         ]);
     }
 }

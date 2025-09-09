@@ -47,11 +47,9 @@ const Register = () => {
         email: formData.email,
         password: formData.password
       });
-      console.log(res);
-      if (res.success) { // Check if registration was successful
+      if (res.success) {
         setIsOTPSent(true);
         console.log("OTP sent to your phone.");
-        // navigate('/'); // Redirect to home page on successful login
       } else {
         throw new Error(res.message || "Registration failed");
       }
@@ -65,7 +63,7 @@ const Register = () => {
     try {
       const res = await verifyOtp({ phone: formData.phone, code: otp });
       if (res.success) {
-        navigate('/'); // Redirect to home page on successful OTP verification
+        navigate('/dashboard'); // Redirect to home page on successful OTP verification
       } else {
         throw new Error(res.message || "OTP verification failed");
       }

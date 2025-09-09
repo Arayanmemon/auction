@@ -135,7 +135,7 @@ const AuctionDetail = () => {
               {auctionImages.map((img, index) => (
                 <img
                   key={index}
-                  src={'https://vertex111.com/admin/public' + img}
+                  src={`${import.meta.env.VITE_API_URL}` + img}
                   alt={`Thumbnail ${index + 1}`}
                   className={`w-16 h-16 object-cover cursor-pointer border rounded ${
                     selectedImage === img
@@ -151,7 +151,7 @@ const AuctionDetail = () => {
           {/* Main Image */}
           <div className="relative flex-1 border rounded overflow-hidden group">
             <img
-              src={'https://vertex111.com/admin/public' + selectedImage}
+              src={`${import.meta.env.VITE_API_URL}` + selectedImage}
               alt={auction.title}
               className="w-full h-96 object-contain transform transition-transform duration-300 group-hover:scale-110"
             />

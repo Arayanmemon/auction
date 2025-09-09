@@ -15,7 +15,7 @@ Route::get('/user', function (Request $request) {
 // Authentication routes
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
-    Route::post('login', [AuthController::class, 'login']);
+    Route::post('login', [AuthController::class, 'login'])->name('login');
     Route::post('verifyRegisterOtp', [AuthController::class, 'verifyRegistrationOtp']);
     Route::get('verify-email', [AuthController::class, 'verifyEmail'])->name('verification.verify');
     Route::post('send-otp', [AuthController::class, 'sendOtp']);
@@ -42,17 +42,18 @@ Route::middleware('auth:sanctum')->prefix('buyer')->group(function () {
     Route::get('bids', [BuyerController::class, 'bids']);
     Route::get('purchases', [BuyerController::class, 'purchases']);
     Route::get('watchlist', [BuyerController::class, 'watchlist']);
+    Route::get('dashboard-data', [BuyerController::class, 'dashboard']);
     // Route::post('watchlist/add', [BuyerController::class, 'addToWatchlist']);
     // Route::delete('watchlist/remove/{id}', [BuyerController::class, 'removeFromWatchlist']);
 });
 
 // Seller routes
 Route::middleware('auth:sanctum')->prefix('seller')->group(function () {
-    Route::post('payout-method/add', [SellerController::class, 'addPayoutMethod']);
-    Route::get('payout-methods', [SellerController::class, 'payoutMethods']);
+    Route::post('become-seller', [SellerController::class, 'becomeSeller']);
     Route::get('auctions', [SellerController::class, 'auctions']);
     Route::post('auction/create', [SellerController::class, 'createAuction']);
     Route::put('auction/update/{id}', [SellerController::class, 'updateAuction']);
+    Route::delete('auction/delete/{id}', [SellerController::class, 'deleteAuction']);
     Route::get('sales-history', [SellerController::class, 'salesHistory']);
 });
 
