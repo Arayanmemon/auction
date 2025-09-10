@@ -4,6 +4,7 @@ namespace App\Services;
 
 use Exception;
 use Twilio\Rest\Client;
+use Illuminate\Support\Facades\Mail;
 
 class TwilioService
 {
@@ -43,5 +44,14 @@ class TwilioService
         $message = "Your verification code is: {$code}. This code will expire in 10 minutes.";
         return true;
         // return $this->sendSms($phone, $message);
+    }
+
+    public function sendVerificationEmail(string $email, string $code): bool
+    {
+        // Implement email sending logic here, e.g., using Laravel's Mail facade
+        Mail::raw("Your verification code is: {$code}. This code will expire in 10 minutes.", function ($message) use ($email) {
+            $message->to($email)->subject('Your Verification Code');
+        });
+        return true;
     }
 }

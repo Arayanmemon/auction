@@ -61,6 +61,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('auction/{id}/bid', [HomeController::class, 'placeBid']);
     Route::post('watchlist/add/{id}', [BuyerController::class, 'addToWatchlist']);
     Route::delete('watchlist/remove/{id}', [BuyerController::class, 'removeFromWatchlist']);
+    Route::get('/notifications', [\App\Http\Controllers\Api\NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\Api\NotificationController::class, 'markAsRead']);
 });
 
 Route::get('auctions/all', [HomeController::class, 'allAuctions']);

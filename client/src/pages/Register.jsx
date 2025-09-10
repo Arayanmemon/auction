@@ -18,6 +18,7 @@ const Register = () => {
     address: "",
     password: "",
     profilePic: null,
+    otp_type: "phone"
   });
 
   const handleChange = (e) => {
@@ -37,6 +38,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(formData.profilePic);
     try {
       const res = await register({
         name: `${formData.firstName} ${formData.lastName}`,
@@ -45,7 +47,9 @@ const Register = () => {
         phone: formData.phone,
         address: formData.address,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        otp_type: formData.otp_type,
+        profile_pic: formData.profilePic || null,
       });
       if (res.success) {
         setIsOTPSent(true);
@@ -184,6 +188,18 @@ const Register = () => {
           required
           disabled={loading}
         />
+
+        <div className="flex gap-4 mt-3">
+          <h3>Recieve OTP: </h3>
+          <div className="flex gap-2">
+            <input type="radio" name="otp_type" value="phone" id="otp_sms" onChange={handleChange} />
+            <label htmlFor="otp_sms">SMS</label>
+          </div>
+          <div className="flex gap-2">
+            <input type="radio" name="otp_type" value="email" id="otp_email" onChange={handleChange} />
+            <label htmlFor="otp_email">Email</label>
+          </div>
+        </div>
 
         <input
           type="file"
