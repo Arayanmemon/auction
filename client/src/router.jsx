@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import MainLayout from "./layouts/MainLayout";
 
 import Home from "./pages/Home";
+import ItemsList from "./pages/ItemsList";
+import ItemDetail from "./pages/ItemDetail";
 import AuctionList from "./pages/AuctionList";
 import AuctionDetail from "./pages/AuctionDetail";
 import Login from "./pages/Login";
@@ -28,7 +30,9 @@ const AppRouter = () => {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
-        <Route path="/auctions" element={<AuctionList />} />
+  <Route path="/auctions" element={<AuctionList />} />
+  <Route path="/items" element={<ItemsList />} />
+        <Route path="/item/:id" element={<ItemDetail />} />
         <Route path="/auction/:id" element={<AuctionDetail />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

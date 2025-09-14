@@ -28,7 +28,7 @@ const CountdownTimer = ({ endTime }) => {
   }
 
   return (
-    <div className="text-sm text-gray-600 mt-1">
+    <div className="text-sm text-white mt-1">
       Ends in: {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
     </div>
   );

@@ -2,13 +2,26 @@ import { Link } from "react-router-dom";
 import CountdownTimer from "./CountdownTimer";
 
 const AuctionCard = ({ auction }) => {
+  const endTime = auction.end_time || auction.endTime || Date.now() + 86400000;
+  const isLive = new Date(endTime) > new Date();
+  // Fix: Define imgSrc before using
+  let imgSrc = 'https://placehold.co/400x400/png?text=Auction+Item';
+  if (auction.images && auction.images[0]) {
+    imgSrc = auction.images[0].startsWith('/assets/')
+      ? auction.images[0]
+      : `${import.meta.env.VITE_API_URL}${auction.images[0]}`;
+  }
   return (
-    <div className="border rounded-lg shadow hover:shadow-lg transition bg-white overflow-hidden">
+    <div className="border rounded-lg shadow hover:shadow-lg transition bg-transparent overflow-hidden relative">
+      {/* Live Tag */}
+      {isLive && (
+        <span className="absolute top-2 left-2 bg-yellow-600 text-black text-xs font-bold px-3 py-1 rounded-full z-10 shadow-lg">LIVE</span>
+      )}
       {/* Auction Image */}
       <Link to={`/auction/${auction.id}`}>
         <img
-          src={auction.images ? `${import.meta.env.VITE_API_URL}${auction.images[0]}` : 'https://placehold.co/400x400/png?text=Auction+Item'} // First image as thumbnail
-          alt={auction.title}
+          src={imgSrc}
+          alt={auction.title || 'Auction Item'}
           className="w-full h-48 object-cover"
         />
       </Link>
@@ -16,29 +29,27 @@ const AuctionCard = ({ auction }) => {
       {/* Auction Info */}
       <div className="p-4">
         {/* Title */}
-        <h3 className="text-lg font-semibold text-gray-800 mb-2 truncate">
-          {auction.title}
+        <h3 className="text-lg font-semibold text-white mb-2 truncate">
+          {auction.title || 'Untitled Auction'}
         </h3>
 
         {/* Current Bid */}
-        <p className="text-gray-600 text-sm mb-2">
-          Current Bid:{" "}
-          <span className="font-bold text-[rgb(0,78,102)]">
-            ${auction.current_bid}
+        <p className="text-white text-sm mb-2">
+          Current Bid: {" "}
+          <span className="font-bold text-yellow-500">
+            ${auction.current_bid || 0}
           </span>
         </p>
 
         {/* Countdown Timer */}
-        {auction.end_time && (
-          <div className="text-sm text-gray-500 mb-3">
-            <CountdownTimer endTime={auction.end_time} />
-          </div>
-        )}
+        <div className="text-sm text-yellow-600 mb-3">
+          <CountdownTimer endTime={endTime} />
+        </div>
 
         {/* View Details Button */}
         <Link
           to={`/auction/${auction.id}`}
-          className="block text-center bg-[rgb(0,78,102)] text-white px-4 py-2 rounded hover:bg-[rgb(0,90,115)] transition"
+          className="block text-center bg-yellow-600 text-black px-4 py-2 rounded font-bold hover:bg-yellow-500 transition"
         >
           View Details
         </Link>

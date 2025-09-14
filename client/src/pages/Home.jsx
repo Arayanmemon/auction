@@ -1,19 +1,30 @@
 import { useEffect, useState } from "react";
 import { heroAuctions } from "../data/heroAuctions";
+import { categoryAuctions } from "../data/categoryAuctions";
 import AuctionCard from "../components/AuctionCard";
+import ItemCard from "../components/ItemCard";
+import { itemCategories } from "../data/itemCategories";
 import HeroSlider from "../components/HeroSlider";
+import CategoriesBar from "../components/CategoriesBar";
 import { useCategory } from "../CategoryContext";
 import { Link } from "react-router-dom";
 
+import SearchBar from "../components/SearchBar";
+import { useSearchBar } from "../contexts/SearchBarContext";
 const Home = () => {
   const { selectedCategory } = useCategory();
   const [auctions, setAuctions] = useState([]);
 
   // Filter auctions safely
+  const { searchBarOpen, setSearchBarOpen } = useSearchBar();
+  const [searchValue, setSearchValue] = useState("");
+  // Prefer backend auctions, fallback to mock data if none
   const filteredAuctions =
     selectedCategory === "All"
-      ? heroAuctions
-      : heroAuctions.filter((a) => a.category && a.category === selectedCategory);
+      ? (auctions.length > 0 ? auctions : Object.values(categoryAuctions).flat())
+      : (auctions.filter((a) => a.category === selectedCategory).length > 0
+          ? auctions.filter((a) => a.category === selectedCategory)
+          : categoryAuctions[selectedCategory] || []);
 
   // Scroll to auctions-section if hash present in URL
   useEffect(() => {
@@ -43,30 +54,55 @@ const Home = () => {
     fetchSellerAuctions();
   }, []);
 
+
+  // Show only first 4 auctions on homepage for auctions and buy now items
+  const previewAuctions = filteredAuctions.slice(0, 4);
+  const allBuyItems = Object.values(itemCategories).flat();
+  const previewBuyItems = allBuyItems.slice(0, 4);
+
   return (
     <div>
       {/* Hero Slider */}
       <HeroSlider slides={heroAuctions} />
 
-      {/* Auctions Section */}
-      <section id="auctions-section" className="container mx-auto px-4 py-10">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">
-            {selectedCategory} Auctions
-          </h2>
+      {/* Categories Bar (after HeroSlider) */}
+      <CategoriesBar />
 
-          {/* View All Link */}
+      {/* Buy Now Items Section */}
+      <section className="container mx-auto px-4 py-10">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-white">Buy Now Items</h2>
           <Link
-            to="/auctions"
-            className="text-[rgb(0,78,102)] hover:underline text-sm font-medium"
+            to="/items"
+            className="text-white hover:underline text-sm font-medium"
           >
             View All
           </Link>
         </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {previewBuyItems.map((item) => (
+            <ItemCard key={item.id} item={item} />
+          ))}
+        </div>
+      </section>
 
-        {auctions.length > 0 ? (
+      {/* Auctions Section */}
+      <section id="auctions-section" className="container mx-auto px-4 py-10">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-white">
+            {selectedCategory} Auctions
+          </h2>
+          {/* View All Link */}
+          <Link
+            to="/auctions"
+            className="text-white hover:underline text-sm font-medium"
+          >
+            View All
+          </Link>
+        </div>
+        {previewAuctions.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {auctions.map((auction) => (
+            {previewAuctions.map((auction) => (
               <AuctionCard key={auction.id} auction={auction} />
             ))}
           </div>
@@ -78,6 +114,37 @@ const Home = () => {
       </section>
     </div>
   );
+      {searchBarOpen && (
+        <SearchBar
+          value={searchValue}
+          onChange={setSearchValue}
+          onClose={() => setSearchBarOpen(false)}
+        />
+      )}
+
+          {/* View All Link */}
+        //   <Link
+        //     to="/auctions"
+        //     className="text-white hover:underline text-sm font-medium"
+        //   >
+        //     View All
+        //   </Link>
+        // </div>
+
+        // {previewAuctions.length > 0 ? (
+        //   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        //     {previewAuctions.map((auction) => (
+        //       <AuctionCard key={auction.id} auction={auction} />
+        //     ))}
+        //   </div>
+        // ) : (
+        //   <p className="text-gray-600 text-center">
+        //     No auctions available in this category.
+        //   </p>
+        // )}
+  //     </section>
+  //   </div>
+  // );
 };
 
 export default Home;

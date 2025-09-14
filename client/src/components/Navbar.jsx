@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { useCategory } from "../CategoryContext";
 import { useAuthContext } from "../contexts/AuthContext";
+import { useSearchBar } from "../contexts/SearchBarContext";
 
 const categories = ["All", "Cars", "Phones", "Computers", "Collectibles", "Electronics"];
 
@@ -10,6 +11,8 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { selectedCategory, setSelectedCategory } = useCategory();
+  const { searchBarOpen, setSearchBarOpen } = useSearchBar();
+  const [searchValue, setSearchValue] = useState("");
   
   // Add null check and default values
   const authContext = useAuthContext();
@@ -31,39 +34,44 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow fixed top-0 w-full z-50">
+  <nav className="bg-black bg-opacity-80 fixed top-0 w-full z-50 font-serif">
       {/* Top Navbar */}
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+  <div className="container mx-auto px-4 py-3 flex justify-between items-center">
         {/* Logo */}
-        <Link to="/" className="text-xl font-bold text-[rgb(0,78,102)]">
+        <Link to="/" className="text-3xl font-bold tracking-widest text-yellow-600 font-serif flex items-center gap-2">
           <img src="/vertex.png" alt="Vertex111" className="h-8 inline-block mr-2" />
-          Vertex111
+          VERTEX111
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex gap-6 items-center relative">
-          <Link to="/" className="hover:text-[rgb(0,78,102)]">Home</Link>
+  <div className="hidden md:flex gap-8 items-center relative">
+          {/* <Link to="/" className="hover:text-[rgb(0,78,102)]">Home</Link> */}
 
-          {/* Auctions Dropdown */}
-          <div
-            className="relative"
-            onMouseEnter={() => setDropdownOpen(true)}
-            onMouseLeave={() => setDropdownOpen(false)}
+          {/* Main Menus: Browse, Buy, Sell */}
+          <button
+            className="text-gold text-lg font-semibold hover:text-yellow-400"
+            onClick={() => setSearchBarOpen((open) => !open)}
           >
-            <button className="flex items-center gap-1 hover:text-[rgb(0,78,102)]">
-              Auctions <ChevronDown size={16} />
-            </button>
-            {dropdownOpen && (
-              <div className="absolute top-full mt-2 w-44 bg-white shadow-md rounded border text-sm">
-                <Link to="/auctions?type=upcoming" className="block px-4 py-2 hover:bg-gray-100">Upcoming Auctions</Link>
-                <Link to="/auctions?type=past" className="block px-4 py-2 hover:bg-gray-100">Past Auctions</Link>
-              </div>
-            )}
-          </div>
+            Browse
+          </button>
+          {searchBarOpen && (
+            <div className="ml-4 w-64">
+              <input
+                type="text"
+                value={searchValue}
+                onChange={e => setSearchValue(e.target.value)}
+                placeholder="Search items, products, auctions..."
+                className="w-full px-4 py-2 bg-black bg-opacity-60 text-yellow-500 border border-yellow-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-600 text-base placeholder-yellow-700 shadow"
+                autoFocus
+              />
+            </div>
+          )}
+          <Link to="/items" className="text-gold text-lg font-semibold hover:text-yellow-400">Buy</Link>
+          <Link to="/sell" className="text-gold text-lg font-semibold hover:text-yellow-400">Sell</Link>
 
           {/* Session (Seller feature) */}
           {user?.role === "seller" && (
-            <Link to="/create-session" className="hover:text-[rgb(0,78,102)]">
+            <Link to="/create-session" className="text-gold text-lg font-semibold hover:text-yellow-400">
               Create Session
             </Link>
           )}
@@ -72,7 +80,7 @@ const Navbar = () => {
           {user && (
             <Link
               to={user.is_seller ? "/seller-dashboard" : "/dashboard"}
-              className="hover:text-[rgb(0,78,102)]"
+              className="text-gold text-lg font-semibold hover:text-yellow-400"
             >
               {user.is_seller ? "Seller Dashboard" : "Buyer Dashboard"}
             </Link>
@@ -81,24 +89,24 @@ const Navbar = () => {
           {/* Auth Section */}
           {user ? (
             <div className="flex items-center gap-3">
-              <span className="text-[rgb(0,78,102)] font-medium">
+              <span className="text-yellow-600 font-medium">
                 Hi, {user.firstName || user.email}
               </span>
               <button
                 onClick={logout}
-                className="bg-[rgb(0,78,102)] text-white px-4 py-2 rounded hover:bg-[rgb(0,90,115)] transition"
+                className="bg-yellow-600 text-black px-4 py-2 rounded hover:bg-yellow-500 transition font-semibold"
               >
                 Logout
               </button>
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <Link to="/login" className="hover:text-[rgb(0,78,102)] text-[rgb(0,78,102)]">
+              <Link to="/login" className="text-gold text-lg font-semibold hover:text-yellow-400">
                 Login
               </Link>
               <Link
                 to="/register"
-                className="bg-[rgb(0,78,102)] text-white px-4 py-2 rounded hover:bg-[rgb(0,90,115)] transition"
+                className="bg-yellow-600 text-black px-4 py-2 rounded hover:bg-yellow-500 transition font-semibold"
               >
                 Join
               </Link>
@@ -107,57 +115,51 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Toggle */}
-        <button className="md:hidden" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle Menu">
+        <button className="md:hidden text-yellow-600" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle Menu">
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
 
       {/* Mobile Dropdown */}
       {isOpen && (
-        <div className="md:hidden bg-white shadow-md">
+        <div className="md:hidden bg-black bg-opacity-95 border-t border-yellow-600 shadow-lg">
           <div className="flex flex-col px-4 py-2 gap-2">
-            <Link to="/" onClick={() => setIsOpen(false)} className="hover:text-[rgb(0,78,102)]">Home</Link>
-            <Link to="/auctions?type=upcoming" onClick={() => setIsOpen(false)} className="hover:text-[rgb(0,78,102)]">Upcoming Auctions</Link>
-            <Link to="/auctions?type=past" onClick={() => setIsOpen(false)} className="hover:text-[rgb(0,78,102)]">Past Auctions</Link>
-
-            {/* Show Create Session if seller */}
+            <Link to="/browse" onClick={() => setIsOpen(false)} className="text-gold text-lg font-semibold hover:text-yellow-400">Browse</Link>
+            <Link to="/auctions" onClick={() => setIsOpen(false)} className="text-gold text-lg font-semibold hover:text-yellow-400">Buy</Link>
+            <Link to="/sell" onClick={() => setIsOpen(false)} className="text-gold text-lg font-semibold hover:text-yellow-400">Sell</Link>
             {user?.role === "seller" && (
-              <Link to="/create-session" onClick={() => setIsOpen(false)} className="hover:text-[rgb(0,78,102)]">
+              <Link to="/create-session" onClick={() => setIsOpen(false)} className="text-gold text-lg font-semibold hover:text-yellow-400">
                 Create Session
               </Link>
             )}
-
-            {/* Dashboard */}
             {user && (
               <Link
                 to={user.role === "seller" ? "/seller-dashboard" : "/dashboard"}
                 onClick={() => setIsOpen(false)}
-                className="hover:text-[rgb(0,78,102)]"
+                className="text-gold text-lg font-semibold hover:text-yellow-400"
               >
                 {user.role === "seller" ? "Seller Dashboard" : "Buyer Dashboard"}
               </Link>
             )}
-
-            {/* Auth Buttons */}
             {user ? (
               <button
                 onClick={() => {
                   logout();
                   setIsOpen(false);
                 }}
-                className="bg-[rgb(0,78,102)] text-white px-4 py-2 rounded hover:bg-[rgb(0,90,115)] transition text-center"
+                className="bg-yellow-600 text-black px-4 py-2 rounded hover:bg-yellow-500 transition font-semibold text-center"
               >
                 Logout
               </button>
             ) : (
               <>
-                <Link to="/login" onClick={() => setIsOpen(false)} className="hover:text-[rgb(0,78,102)]">
+                <Link to="/login" onClick={() => setIsOpen(false)} className="text-gold text-lg font-semibold hover:text-yellow-400">
                   Login
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setIsOpen(false)}
-                  className="bg-[rgb(0,78,102)] text-white px-4 py-2 rounded text-center hover:bg-[rgb(0,90,115)] transition"
+                  className="bg-yellow-600 text-black px-4 py-2 rounded text-center hover:bg-yellow-500 transition font-semibold"
                 >
                   Join
                 </Link>
@@ -167,26 +169,7 @@ const Navbar = () => {
         </div>
       )}
 
-      {/* Categories Bar (only on Home) */}
-      {location.pathname === "/" && (
-        <div className="bg-gray-50 border-t border-gray-200">
-          <div className="container mx-auto px-4 flex gap-6 overflow-x-auto py-2">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => handleCategoryClick(cat)}
-                className={`pb-1 border-b-2 text-sm font-medium ${
-                  selectedCategory === cat
-                    ? "border-[rgb(0,78,102)] text-[rgb(0,78,102)]"
-                    : "border-transparent hover:border-gray-300"
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+
     </nav>
   );
 };
