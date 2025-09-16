@@ -1,6 +1,6 @@
 import { useState } from "react";
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import { useAuthContext } from "../contexts/AuthContext";
 import { FilePen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -18,7 +18,7 @@ const Register = () => {
     address: "",
     password: "",
     profilePic: null,
-    otp_type: "phone"
+    otp_type: "phone",
   });
 
   const handleChange = (e) => {
@@ -67,7 +67,7 @@ const Register = () => {
     try {
       const res = await verifyOtp({ phone: formData.phone, code: otp });
       if (res.success) {
-        navigate('/dashboard'); // Redirect to home page on successful OTP verification
+        navigate("/dashboard"); // Redirect to home page on successful OTP verification
       } else {
         throw new Error(res.message || "OTP verification failed");
       }
@@ -83,7 +83,9 @@ const Register = () => {
           onSubmit={handleOtpSubmit}
           className="max-w-md w-full bg-gray-900 p-8 rounded-xl shadow-lg border border-gray-800"
         >
-          <h2 className="text-2xl font-bold text-center mb-6 text-yellow-600">OTP Verification</h2>
+          <h2 className="text-2xl font-bold text-center mb-6 text-yellow-600">
+            OTP Verification
+          </h2>
           {error && (
             <div className="bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded mb-4">
               {error}
@@ -108,126 +110,142 @@ const Register = () => {
         </form>
       )}
       {!isOTPSent && (
-        <form
-          onSubmit={handleSubmit}
-          className="max-w-md w-full bg-gray-900 p-8 rounded-xl shadow-lg border border-gray-800"
-        >
-          <h2 className="text-2xl font-bold text-center mb-6 text-yellow-600">Create Your Account</h2>
-          {error && (
-            <div className="bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded mb-4">
-              {error}
+        <>
+          <form
+            onSubmit={handleSubmit}
+            className="max-w-md w-full bg-gray-900 p-8 rounded-xl shadow-lg border border-gray-800"
+          >
+            <h2 className="text-2xl font-bold text-center mb-6 text-yellow-600">
+              Create Your Account
+            </h2>
+            {error && (
+              <div className="bg-red-900 border border-red-700 text-red-100 px-4 py-3 rounded mb-4">
+                {error}
+              </div>
+            )}
+            <div className="flex gap-3 mb-4">
+              <input
+                name="firstName"
+                placeholder="First Name"
+                value={formData.firstName}
+                onChange={handleChange}
+                className="border border-gray-700 bg-black text-white rounded px-3 py-2 w-1/2 focus:outline-none focus:ring-2 focus:ring-yellow-600"
+                required
+                disabled={loading}
+              />
+              <input
+                name="lastName"
+                placeholder="Last Name"
+                value={formData.lastName}
+                onChange={handleChange}
+                className="border border-gray-700 bg-black text-white rounded px-3 py-2 w-1/2 focus:outline-none focus:ring-2 focus:ring-yellow-600"
+                required
+                disabled={loading}
+              />
             </div>
-          )}
-          <div className="flex gap-3 mb-4">
             <input
-              name="firstName"
-              placeholder="First Name"
-              value={formData.firstName}
+              type="email"
+              name="email"
+              placeholder="Email Address"
+              value={formData.email}
               onChange={handleChange}
-              className="border border-gray-700 bg-black text-white rounded px-3 py-2 w-1/2 focus:outline-none focus:ring-2 focus:ring-yellow-600"
+              className="border border-gray-700 bg-black text-white rounded px-3 py-2 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-yellow-600"
+              required
+              disabled={loading}
+            />
+            <div className="mb-4">
+              <PhoneInput
+                country={"pk"}
+                value={formData.phone}
+                onChange={handlePhoneChange}
+                inputClass="w-full border border-gray-700 bg-black text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-600"
+                inputStyle={{
+                  width: "100%",
+                  background: "#000",
+                  color: "#fff",
+                  borderColor: "#444",
+                  borderRadius: "0.5rem",
+                }}
+                required
+              />
+            </div>
+            <textarea
+              name="address"
+              placeholder="Full Address"
+              value={formData.address}
+              onChange={handleChange}
+              className="border border-gray-700 bg-black text-white rounded px-3 py-2 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-yellow-600"
               required
               disabled={loading}
             />
             <input
-              name="lastName"
-              placeholder="Last Name"
-              value={formData.lastName}
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
               onChange={handleChange}
-              className="border border-gray-700 bg-black text-white rounded px-3 py-2 w-1/2 focus:outline-none focus:ring-2 focus:ring-yellow-600"
+              className="border border-gray-700 bg-black text-white rounded px-3 py-2 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-yellow-600"
               required
               disabled={loading}
             />
-          </div>
-          <input
-            type="email"
-            name="email"
-            placeholder="Email Address"
-            value={formData.email}
-            onChange={handleChange}
-            className="border border-gray-700 bg-black text-white rounded px-3 py-2 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-yellow-600"
-            required
-            disabled={loading}
-          />
-          <div className="mb-4">
-            <PhoneInput
-              country={'pk'}
-              value={formData.phone}
-              onChange={handlePhoneChange}
-              inputClass="w-full border border-gray-700 bg-black text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-600"
-              inputStyle={{ width: '100%', background: '#000', color: '#fff', borderColor: '#444', borderRadius: '0.5rem' }}
+            <textarea
+              name="address"
+              placeholder="Full Address"
+              value={formData.address}
+              onChange={handleChange}
+              className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
               required
+              disabled={loading}
             />
-          </div>
-          <textarea
-            name="address"
-            placeholder="Full Address"
-            value={formData.address}
-            onChange={handleChange}
-            className="border border-gray-700 bg-black text-white rounded px-3 py-2 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-yellow-600"
-            required
-            disabled={loading}
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            className="border border-gray-700 bg-black text-white rounded px-3 py-2 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-yellow-600"
-            required
-            disabled={loading}
-          />
-        </div>
-
-        <textarea
-          name="address"
-          placeholder="Full Address"
-          value={formData.address}
-          onChange={handleChange}
-          className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
-          required
-          disabled={loading}
-        />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
-          required
-          disabled={loading}
-        />
-
-        <div className="flex gap-4 mt-3">
-          <h3>Recieve OTP: </h3>
-          <div className="flex gap-2">
-            <input type="radio" name="otp_type" value="phone" id="otp_sms" onChange={handleChange} />
-            <label htmlFor="otp_sms">SMS</label>
-          </div>
-          <div className="flex gap-2">
-            <input type="radio" name="otp_type" value="email" id="otp_email" onChange={handleChange} />
-            <label htmlFor="otp_email">Email</label>
-          </div>
-        </div>
-
-        <input
-          type="file"
-          name="profilePic"
-          accept="image/*"
-          onChange={handleChange}
-          className="mt-3 w-full"
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-4 w-full bg-[rgb(0,78,102)] text-white py-2 rounded hover:bg-[rgb(0,90,115)] transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? "Registering..." : "Register"}
-        </button>
-      </form>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+              required
+              disabled={loading}
+            />
+            <div className="flex gap-4 mt-3">
+              <h3>Recieve OTP: </h3>
+              <div className="flex gap-2">
+                <input
+                  type="radio"
+                  name="otp_type"
+                  value="phone"
+                  id="otp_sms"
+                  onChange={handleChange}
+                />
+                <label htmlFor="otp_sms">SMS</label>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="radio"
+                  name="otp_type"
+                  value="email"
+                  id="otp_email"
+                  onChange={handleChange}
+                />
+                <label htmlFor="otp_email">Email</label>
+              </div>
+            </div>
+            <input
+              type="file"
+              name="profilePic"
+              accept="image/*"
+              onChange={handleChange}
+              className="mt-3 w-full"
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-4 w-full bg-[rgb(0,78,102)] text-white py-2 rounded hover:bg-[rgb(0,90,115)] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Registering..." : "Register"}
+            </button>
+          </form>
+        </>
       )}
     </div>
   );

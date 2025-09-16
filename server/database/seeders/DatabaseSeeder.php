@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -15,6 +16,9 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UserSeeder::class,
+            Category::create(['name' => 'phones', 'slug' => 'phones']),
+            Category::create(['name' => 'laptops', 'slug' => 'laptops']),
+            Category::create(['name' => 'tablets', 'slug' => 'tablets']),
         ]);
     }
 }
