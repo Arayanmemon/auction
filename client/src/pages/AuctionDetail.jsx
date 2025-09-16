@@ -259,7 +259,7 @@ const AuctionDetail = () => {
                   <tr key={index} className="hover:bg-gray-50">
                     <td className="p-3 border-b">{bid.bidder['name']}</td>
                     <td className="p-3 border-b">${bid.amount}</td>
-                    <td className="p-3 border-b">{bid.created_at}</td>
+                    <td className="p-3 border-b">{new Date(bid.created_at).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>

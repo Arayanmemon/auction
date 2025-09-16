@@ -7,6 +7,7 @@ use App\Http\Resources\AuctionResource;
 use App\Models\Auction;
 use App\Models\Bid;
 use App\Models\Category;
+use App\Services\BidService;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -88,17 +89,25 @@ class HomeController extends Controller
 
         $auction = Auction::findOrFail($id);
 
-        $bid = Bid::create([
-            'auction_id' => $auction->id,
-            'bidder_id' => $request->user()->id,
-            'amount' => $request->amount,
-            'ip_address' => $request->ip(),
-            'is_winning' => true,
-        ]);
+        // $bid = Bid::create([
+        //     'auction_id' => $auction->id,
+        //     'bidder_id' => $request->user()->id,
+        //     'amount' => $request->amount,
+        //     'ip_address' => $request->ip(),
+        //     'is_winning' => true,
+        // ]);
+        $bid = new Bid();
+        $bid->auction_id = $auction->id;
+        $bid->bidder_id = $request->user()->id;
+        $bid->amount = $request->amount;
+        $bid->ip_address = $request->ip();
+        $bid->is_winning = true;
+
+        $bidService = new BidService();
+        $bidService->placeBid($auction, $bid);
 
         $bid_count = $auction->bids()->count();
         $auction->update(['current_bid' => $request->amount, 'bid_count' => $bid_count]);
-        
 
         return response()->json([
             'success' => true,

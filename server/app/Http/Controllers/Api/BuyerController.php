@@ -49,7 +49,7 @@ class BuyerController extends Controller
 
         $watchlistItems = $user->watchlist()
             ->with(['auction.category', 'auction.seller'])
-            // ->whereHas('auction', fn($q) => $q->where('status', 'active'))
+            ->whereHas('auction', fn($q) => $q->where('status', 'active'))
             ->latest()
             ->limit(5)
             ->get();
@@ -57,12 +57,14 @@ class BuyerController extends Controller
         // Get auctions ending soon that user is watching
         $endingSoon = Auction::query()
             ->whereHas('watchlists', fn($q) => $q->where('user_id', $user->id))
-            // ->where('status', 'active')
+            ->where('status', 'active')
             ->where('end_time', '<=', now()->addHours(48))
             ->with(['category', 'seller', 'highestBid'])
             ->orderBy('end_time')
             ->limit(5)
             ->get();
+
+        $notifications = $user->notifications()->latest()->limit(10)->get();
 
         return response()->json([
             'stats' => $stats,
@@ -70,6 +72,7 @@ class BuyerController extends Controller
             'recent_purchases' => PurchaseResource::collection($recentPurchases),
             'watchlist' => WatchlistResource::collection($watchlistItems),
             'ending_soon' => AuctionResource::collection($endingSoon),
+            'notifications' => $notifications,
         ]);
     }
 

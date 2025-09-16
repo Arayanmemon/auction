@@ -71,22 +71,22 @@ const SellerDashboard = () => {
 
   // Dummy sales history (replace with real data)
   const salesHistory = [
-    {
-      id: 101,
-      title: "Gaming Chair",
-      soldPrice: 120,
-      commission: 12,
-      date: "2025-08-01",
-      buyer: "John Doe"
-    },
-    {
-      id: 102,
-      title: "MacBook Pro 2021",
-      soldPrice: 1500,
-      commission: 150,
-      date: "2025-07-15",
-      buyer: "Jane Smith"
-    }
+    // {
+    //   id: 101,
+    //   title: "Gaming Chair",
+    //   soldPrice: 120,
+    //   commission: 12,
+    //   date: "2025-08-01",
+    //   buyer: "John Doe"
+    // },
+    // {
+    //   id: 102,
+    //   title: "MacBook Pro 2021",
+    //   soldPrice: 1500,
+    //   commission: 150,
+    //   date: "2025-07-15",
+    //   buyer: "Jane Smith"
+    // }
   ];
 
   // Handler for editing auction (dummy)

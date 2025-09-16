@@ -1,26 +1,21 @@
 import React from "react";
 
-const NotificationList = ({ notifications }) => {
-  return (
-    <div>
-      <h2 className="text-xl font-semibold mb-3">Notifications</h2>
-      {notifications.length === 0 ? (
-        <div className="text-gray-600 text-sm">No outbid alerts or winning bid notifications yet.</div>
-      ) : (
-        <ul className="text-gray-600 text-sm list-disc pl-5">
-          {notifications.map((note, idx) => (
-            <li key={idx} className="mb-2">
-              <span className={note.type === "win" ? "text-green-600 font-semibold" : note.type === "outbid" ? "text-red-600 font-semibold" : ""}>
-                {note.message}
-              </span>
-              <span className="ml-2 text-xs text-gray-400">{note.date}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-      <p className="text-xs text-gray-400 mt-2">Notifications will also be sent to your registered email.</p>
-    </div>
-  );
-};
+const NotificationList = ({ notifications }) => (
+  <div>
+    {notifications && notifications.length > 0 ? (
+      <ul className="divide-y divide-gray-200">
+        {notifications.map((n) => (
+          <li key={n.id} className={`py-2 ${n.read_at ? "text-gray-500" : "font-semibold"}`}>
+            <div>{n.title || n.data?.auction_title}</div>
+            <div className="text-xs">{n.body || n.data?.type}</div>
+            <div className="text-xs text-gray-400">{new Date(n.created_at).toLocaleString()}</div>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <div className="text-gray-500 text-sm">No notifications.</div>
+    )}
+  </div>
+);
 
 export default NotificationList;
