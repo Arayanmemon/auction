@@ -122,7 +122,7 @@ const AuctionDetail = () => {
   };
   
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container my-15 mx-auto px-4 py-8">
       {/* Auction Title */}
       <h1 className="text-3xl font-bold mb-4">{auction.title}</h1>
 

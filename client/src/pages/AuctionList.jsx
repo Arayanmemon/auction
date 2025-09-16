@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { heroAuctions } from "../data/heroAuctions"; // use heroAuctions data
 import AuctionCard from "../components/AuctionCard";
-
-// Categories (could also be dynamic later)
-const categories = ["All", "Cars", "Phones", "Computers", "Collectibles", "Electronics"];
+import categoryAuctionsJson from "../data/categoryAuctions.json";
+const categoryAuctions = categoryAuctionsJson;
+const categories = ["All", ...Object.keys(categoryAuctions)];
 
 const AuctionList = () => {
   // States
@@ -19,18 +18,12 @@ const AuctionList = () => {
     setCurrentPage(1);
   };
 
-  // Combined Filtering Logic
-  const filteredAuctions = heroAuctions
+  // Filtering logic
+  const filteredAuctions = Object.values(categoryAuctions)
+    .flat()
     .filter((auction) => {
-      // Status filter
-      if (filter === "upcoming") return new Date(auction.endTime) > new Date();
-      if (filter === "past") return new Date(auction.endTime) < new Date();
-      return true;
-    })
-    .filter((auction) => {
-      // Category filter
       if (selectedCategory !== "All") {
-        return auction.category === selectedCategory;
+        return categoryAuctions[selectedCategory]?.some(a => a.id === auction.id);
       }
       return true;
     })
@@ -39,18 +32,17 @@ const AuctionList = () => {
     );
 
   // Pagination logic
-  const totalPages = Math.ceil(filteredAuctions.length / itemsPerPage); 
+  const totalPages = Math.ceil(filteredAuctions.length / itemsPerPage);
   const paginatedAuctions = filteredAuctions.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
   return (
-    <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-6">
+    <div className="container mx-auto my-15 px-4 py-8 flex flex-col md:flex-row gap-6">
       {/* Sidebar: Category Filter */}
-      <aside className="w-full md:w-1/4 bg-gray-50 border rounded-lg p-4 h-fit">
-  <h2 className="text-lg font-bold mb-3">Browse by Categories</h2>
-
+      <aside className="w-full md:w-1/4 bg-black border border-gray-800 rounded-lg p-4 h-fit">
+        <h2 className="text-lg font-bold mb-3 text-yellow-600">Browse by Categories</h2>
         <div className="flex flex-col gap-2">
           {categories.map((cat) => (
             <label key={cat} className="flex items-center gap-2 cursor-pointer">
@@ -60,9 +52,9 @@ const AuctionList = () => {
                 value={cat}
                 checked={selectedCategory === cat}
                 onChange={() => handleCategoryChange(cat)}
-                className="accent-[rgb(0,78,102)]"
+                className="accent-yellow-600"
               />
-              <span className="text-gray-700">{cat}</span>
+              <span className="text-white">{cat}</span>
             </label>
           ))}
         </div>
@@ -72,7 +64,7 @@ const AuctionList = () => {
       <div className="flex-1">
         {/* Header + Search */}
         <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-          <h1 className="text-3xl font-bold">{selectedCategory} Auctions</h1>
+          <h1 className="text-3xl font-bold text-white">{selectedCategory} Auctions</h1>
 
           <input
             type="text"
@@ -82,52 +74,11 @@ const AuctionList = () => {
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="border border-gray-300 rounded px-4 py-2 w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+            className="border border-gray-700 rounded px-4 py-2 w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-yellow-600 bg-black text-white"
           />
         </div>
 
-        {/* Status Filters */}
-        <div className="flex gap-3 mb-6">
-          <button
-            className={`px-4 py-2 rounded ${
-              filter === "all"
-                ? "bg-[rgb(0,78,102)] text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-            onClick={() => {
-              setFilter("all");
-              setCurrentPage(1);
-            }}
-          >
-            All
-          </button>
-          <button
-            className={`px-4 py-2 rounded ${
-              filter === "upcoming"
-                ? "bg-[rgb(0,78,102)] text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-            onClick={() => {
-              setFilter("upcoming");
-              setCurrentPage(1);
-            }}
-          >
-            Upcoming
-          </button>
-          <button
-            className={`px-4 py-2 rounded ${
-              filter === "past"
-                ? "bg-[rgb(0,78,102)] text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-            onClick={() => {
-              setFilter("past");
-              setCurrentPage(1);
-            }}
-          >
-            Past
-          </button>
-        </div>
+  {/* Remove status filters for category-based auctions */}
 
         {/* Auction Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -147,13 +98,13 @@ const AuctionList = () => {
             onClick={() => setCurrentPage((prev) => prev - 1)}
             className={`px-4 py-2 rounded ${
               currentPage === 1
-                ? "bg-gray-200 text-gray-400"
-                : "bg-[rgb(0,78,102)] text-white hover:bg-[rgb(0,90,115)]"
+                ? "bg-gray-800 text-gray-400"
+                : "bg-yellow-600 text-black hover:bg-yellow-500"
             }`}
           >
             Prev
           </button>
-          <span className="px-4 py-2 text-gray-700">
+          <span className="px-4 py-2 text-white">
             Page {currentPage} of {totalPages || 1}
           </span>
           <button
@@ -161,8 +112,8 @@ const AuctionList = () => {
             onClick={() => setCurrentPage((prev) => prev + 1)}
             className={`px-4 py-2 rounded ${
               currentPage === totalPages || totalPages === 0
-                ? "bg-gray-200 text-gray-400"
-                : "bg-[rgb(0,78,102)] text-white hover:bg-[rgb(0,90,115)]"
+                ? "bg-gray-800 text-gray-400"
+                : "bg-yellow-600 text-black hover:bg-yellow-500"
             }`}
           >
             Next

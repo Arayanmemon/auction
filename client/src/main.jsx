@@ -7,13 +7,16 @@ import "./index.css";
 // Context Providers
 import { CategoryProvider } from "./CategoryContext";
 import { AuthProvider } from "./contexts/AuthContext";
+import { SearchBarProvider } from "./contexts/SearchBarContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <AuthProvider>
         <CategoryProvider>
-          <App />
+          <SearchBarProvider>
+            <App />
+          </SearchBarProvider>
         </CategoryProvider>
       </AuthProvider>
     </BrowserRouter>
