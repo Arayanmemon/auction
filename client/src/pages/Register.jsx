@@ -18,6 +18,7 @@ const Register = () => {
     address: "",
     password: "",
     profilePic: null,
+    otp_type: "phone"
   });
 
   const handleChange = (e) => {
@@ -37,6 +38,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(formData.profilePic);
     try {
       const res = await register({
         name: `${formData.firstName} ${formData.lastName}`,
@@ -45,7 +47,9 @@ const Register = () => {
         phone: formData.phone,
         address: formData.address,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        otp_type: formData.otp_type,
+        profile_pic: formData.profilePic || null,
       });
       if (res.success) {
         setIsOTPSent(true);
@@ -173,21 +177,57 @@ const Register = () => {
             required
             disabled={loading}
           />
-          <input
-            type="file"
-            name="profilePic"
-            accept="image/*"
-            onChange={handleChange}
-            className="mb-4 w-full text-white"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 w-full bg-yellow-600 text-black py-2 rounded font-bold hover:bg-yellow-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "Registering..." : "Register"}
-          </button>
-        </form>
+        </div>
+
+        <textarea
+          name="address"
+          placeholder="Full Address"
+          value={formData.address}
+          onChange={handleChange}
+          className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+          required
+          disabled={loading}
+        />
+
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          value={formData.password}
+          onChange={handleChange}
+          className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+          required
+          disabled={loading}
+        />
+
+        <div className="flex gap-4 mt-3">
+          <h3>Recieve OTP: </h3>
+          <div className="flex gap-2">
+            <input type="radio" name="otp_type" value="phone" id="otp_sms" onChange={handleChange} />
+            <label htmlFor="otp_sms">SMS</label>
+          </div>
+          <div className="flex gap-2">
+            <input type="radio" name="otp_type" value="email" id="otp_email" onChange={handleChange} />
+            <label htmlFor="otp_email">Email</label>
+          </div>
+        </div>
+
+        <input
+          type="file"
+          name="profilePic"
+          accept="image/*"
+          onChange={handleChange}
+          className="mt-3 w-full"
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="mt-4 w-full bg-[rgb(0,78,102)] text-white py-2 rounded hover:bg-[rgb(0,90,115)] transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Registering..." : "Register"}
+        </button>
+      </form>
       )}
     </div>
   );

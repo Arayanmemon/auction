@@ -1,7 +1,13 @@
-import { useAuthContext } from "../contexts/AuthContext";
+import { useAuth } from "../AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import DataTable from "../components/DataTable";
+import ActiveBids from "./ActiveBids";
+import Watchlist from "./Watchlist";
+import PurchaseHistory from "./PurchaseHistory";
+import AccountSettings from "./AccountSettings";
+import NotificationList from "../components/NotificationList";
 
 const BuyerDashboard = () => {
   const { user } = useAuthContext();
@@ -9,6 +15,9 @@ const BuyerDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState("active-bids");
+  const [notifications, setNotifications] = useState([]);
+  const location = useLocation(); 
 
   const fetchDashboardData = async () => {
     try {
@@ -27,6 +36,7 @@ const BuyerDashboard = () => {
 
       const data = await response.json();
       setDashboardData(data);
+      setNotifications(data.notifications || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -54,7 +64,6 @@ const BuyerDashboard = () => {
     );
   }
 
-  const location = useLocation(); 
   const tabs = [
     { name: "Active Bids", key: "active-bids" },
     { name: "Watchlist", key: "watchlist" },
@@ -64,11 +73,11 @@ const BuyerDashboard = () => {
     { name: "Current Auctions", key: "current-auctions" },
     { name: "Sales History", key: "sales-history" },
   ];
-  const [activeTab, setActiveTab] = useState("active-bids");
+  const [activeTab, setActiveTab] = React.useState("active-bids");
 
   return (
-    <div className="container mx-auto px-4 py-8 text-white">
-      <h1 className="text-3xl font-bold mb-6 text-yellow-400">
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6 text-[rgb(0,78,102)]">
         Welcome, {user?.firstName || "Buyer"}
       </h1>
 
@@ -184,6 +193,12 @@ const BuyerDashboard = () => {
           )}
         </div>
 
+        {/* Notifications */}
+        <div className="bg-white rounded-lg shadow p-4">
+          <h2 className="text-xl font-semibold mb-3">Notifications</h2>
+          <NotificationList notifications={notifications} />
+        </div>
+
         {/* Account Settings */}
         <div className="bg-gradient-to-br from-gray-900 to-black rounded-lg shadow-lg p-4 border border-yellow-700">
           <h2 className="text-xl font-semibold mb-3 text-yellow-300">Account Settings</h2>
@@ -209,11 +224,8 @@ const BuyerDashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 p-8">
-        <h1 className="text-3xl font-bold mb-6 text-[rgb(0,78,102)]">
-          Welcome, {user?.firstName || "Buyer"}
-        </h1>
-        {activeTab === "active-bids" && <ActiveBids />}
-        {activeTab === "watchlist" && <Watchlist />}
+        {activeTab === "active-bids" && <ActiveBids bids={dashboardData?.recent_bids} />}
+        {activeTab === "watchlist" && <Watchlist items={dashboardData?.watchlist} />}
         {activeTab === "purchase-history" && <PurchaseHistory />}
         {activeTab === "account-settings" && <AccountSettings />}
         {activeTab === "notifications" && (

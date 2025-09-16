@@ -18,6 +18,7 @@ export class AuthService {
   }
 
   static async register(userData: RegisterRequest): Promise<AuthResponse> {
+    console.log(userData);
     const response = await apiClient.post<BackendAuthResponse>('/auth/register', userData);
     return {
       message: response.message,

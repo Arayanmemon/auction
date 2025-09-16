@@ -44,7 +44,6 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
-        'phone_verification_code',
     ];
 
     /**
@@ -57,7 +56,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'phone_verified_at' => 'datetime',
-            'phone_verification_code_expires_at' => 'datetime',
             'password' => 'hashed',
             'is_seller' => 'boolean',
         ];
@@ -216,9 +214,9 @@ class User extends Authenticatable implements MustVerifyEmail
         $this->notify(new VerifyEmailNotification);
     }
 
-    public function payoutMethods(): HasMany
+    public function notifications()
     {
-        return $this->hasMany(PayoutMethod::class);
+        return $this->hasMany(\App\Models\Notification::class);
     }
 
     // Seller related methods

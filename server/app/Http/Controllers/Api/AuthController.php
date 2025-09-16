@@ -19,6 +19,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -44,36 +45,69 @@ class AuthController extends Controller
             ], 422);
         }
 
-        // Prepare user data
-        $userData = [
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-        ];
+        \Log::info($request->all());
 
-        // Generate OTP for registration
-        $otp = Otp::generateForRegistration($request->phone, $request->ip(), $userData);
-        \Log::info('otp code: ' . $otp->code);
-        // Send OTP via SMS
-        $sent = $this->twilioService->sendVerificationCode($request->phone, $otp->code);
+        try{
+            DB::beginTransaction();
+            // Prepare user data
+            if($request->hasFile('profile_pic')){
+                $path = $request->file('profile_pic')->store('profile_pics', 'public');
+                \Log::info('Profile pic path: ' . $path);
+                $request->merge(['profile_pic' => $path]);
+            }
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+                'profile_pic' => $request->profile_pic,
+            ]);
 
-        if (!$sent) {
+            $userData = [
+                'user_id' => $user->id,
+                'email' => $request->email,
+                'phone' => $request->phone,
+            ];
+
+            // event(new Registered($user));
+
+            $type = $request->otp_type ?? 'phone';
+            // Generate OTP for registration
+            $otp = Otp::generateForRegistration($request->phone, $request->ip(), $userData);
+            \Log::info('otp code: ' . $otp->code);
+            // Send OTP via SMS
+            $sent = false;
+            if($type === 'phone') {
+                $sent = $this->twilioService->sendVerificationCode($request->phone, $otp->code);
+            } else{
+                $sent = $this->twilioService->sendVerificationEmail($request->email, $otp->code);
+            }
+
+            DB::commit();
+
+            if (!$sent) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to send verification code or email. Please try again.',
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Registration initiated. Please verify your phone number with the OTP sent.',
+                'phone' => $request->phone,
+                'expires_at' => $otp->expires_at,
+            ], 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to send verification code. Please try again.',
+                'message' => 'Registration failed. Please try again.',
             ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Registration initiated. Please verify your phone number with the OTP sent.',
-            'phone' => $request->phone,
-            'expires_at' => $otp->expires_at,
-        ], 200);
     }
 
     public function verifyRegistrationOtp(Request $request): JsonResponse
@@ -96,20 +130,9 @@ class AuthController extends Controller
         $otp->markAsVerified();
 
         // Create user with data from OTP
-        $userData = $otp->data;
-        $user = User::create([
-            'name' => $userData['name'],
-            'first_name' => $userData['first_name'],
-            'last_name' => $userData['last_name'],
-            'email' => $userData['email'],
-            'password' => Hash::make($userData['password']),
-            'phone' => $userData['phone'],
-            'address' => $userData['address'] ?? null,
-            'phone_verified_at' => now(),
-            'is_seller' => false,
-        ]);
-
-        event(new Registered($user));
+        $user = User::findOrFail($otp->data['user_id']);
+        $user->phone_verified_at = now();
+        $user->save();
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
