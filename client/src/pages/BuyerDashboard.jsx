@@ -1,5 +1,7 @@
-import { useAuth } from "../AuthContext";
+import { useAuthContext } from "../contexts/AuthContext";
+
 import { useNavigate } from "react-router-dom";
+
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import DataTable from "../components/DataTable";
@@ -73,12 +75,14 @@ const BuyerDashboard = () => {
     { name: "Current Auctions", key: "current-auctions" },
     { name: "Sales History", key: "sales-history" },
   ];
-  const [activeTab, setActiveTab] = React.useState("active-bids");
+
+  
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 mt-10">
       <h1 className="text-3xl font-bold mb-6 text-[rgb(0,78,102)]">
-        Welcome, {user?.firstName || "Buyer"}
+        Welcome, {user?.first_name || "Buyer"}
+
       </h1>
 
       {/* Stats Overview */}
