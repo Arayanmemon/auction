@@ -118,6 +118,7 @@ const Register = () => {
               {error}
             </div>
           )}
+
           <div className="flex gap-3 mb-4">
             <input
               name="firstName"
@@ -138,6 +139,7 @@ const Register = () => {
               disabled={loading}
             />
           </div>
+
           <input
             type="email"
             name="email"
@@ -148,6 +150,7 @@ const Register = () => {
             required
             disabled={loading}
           />
+
           <div className="mb-4">
             <PhoneInput
               country={'pk'}
@@ -158,6 +161,7 @@ const Register = () => {
               required
             />
           </div>
+
           <textarea
             name="address"
             placeholder="Full Address"
@@ -167,6 +171,7 @@ const Register = () => {
             required
             disabled={loading}
           />
+
           <input
             type="password"
             name="password"
@@ -177,57 +182,37 @@ const Register = () => {
             required
             disabled={loading}
           />
-        </div>
 
-        <textarea
-          name="address"
-          placeholder="Full Address"
-          value={formData.address}
-          onChange={handleChange}
-          className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
-          required
-          disabled={loading}
-        />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
-          required
-          disabled={loading}
-        />
-
-        <div className="flex gap-4 mt-3">
-          <h3>Recieve OTP: </h3>
-          <div className="flex gap-2">
-            <input type="radio" name="otp_type" value="phone" id="otp_sms" onChange={handleChange} />
-            <label htmlFor="otp_sms">SMS</label>
+          <div className="flex gap-4 mt-3 items-center">
+            <h3 className="text-yellow-200">Receive OTP:</h3>
+            <div className="flex gap-4 items-center">
+              <label className="flex items-center gap-2">
+                <input type="radio" name="otp_type" value="phone" id="otp_sms" onChange={handleChange} defaultChecked={formData.otp_type === 'phone'} />
+                <span className="text-yellow-200">SMS</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="radio" name="otp_type" value="email" id="otp_email" onChange={handleChange} />
+                <span className="text-yellow-200">Email</span>
+              </label>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <input type="radio" name="otp_type" value="email" id="otp_email" onChange={handleChange} />
-            <label htmlFor="otp_email">Email</label>
-          </div>
-        </div>
 
-        <input
-          type="file"
-          name="profilePic"
-          accept="image/*"
-          onChange={handleChange}
-          className="mt-3 w-full"
-        />
+          <input
+            type="file"
+            name="profilePic"
+            accept="image/*"
+            onChange={handleChange}
+            className="mt-3 w-full"
+          />
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="mt-4 w-full bg-[rgb(0,78,102)] text-white py-2 rounded hover:bg-[rgb(0,90,115)] transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? "Registering..." : "Register"}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-4 w-full bg-yellow-600 text-black py-2 rounded font-bold hover:bg-yellow-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
+        </form>
       )}
     </div>
   );
