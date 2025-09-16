@@ -129,20 +129,20 @@ const SellerDashboard = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Seller Dashboard</h1>
+    <div className="container mx-auto px-4 py-8 text-white">
+      <h1 className="text-3xl font-bold mb-6 text-yellow-400">Seller Dashboard</h1>
 
       {/* Seller profile/account info (dummy) */}
-      <div className="mb-8 p-4 bg-gray-100 rounded-lg border">
-        <h2 className="text-xl font-semibold mb-2">Account Info</h2>
+      <div className="mb-8 p-4 bg-gradient-to-br from-gray-900 to-black rounded-lg border border-yellow-700">
+        <h2 className="text-xl font-semibold mb-2 text-yellow-300">Account Info</h2>
         <p><strong>Name:</strong> {user?.name || "Demo Seller"} {user?.lastName || ""}</p>
         <p><strong>Email:</strong> {user?.email || "demo@seller.com"}</p>
         <p><strong>Phone:</strong> {user?.phone || "+1234567890"}</p>
       </div>
 
       {/* Payment methods management */}
-      <div className="mb-8 p-4 bg-gray-100 rounded-lg border">
-        <h2 className="text-xl font-semibold mb-2">Payout Methods</h2>
+      <div className="mb-8 p-4 bg-gradient-to-br from-gray-900 to-black rounded-lg border border-yellow-700">
+        <h2 className="text-xl font-semibold mb-2 text-yellow-300">Payout Methods</h2>
         <ul>
           {payoutMethodsList.map(method => (
             <li key={method.key} className="flex items-center mb-2">
@@ -151,9 +151,9 @@ const SellerDashboard = () => {
                 checked={payoutMethods[method.key]}
                 onChange={() => handleTogglePayout(method.key)}
                 disabled={method.key === "stripe" || method.key === "wise" || method.key === "payoneer"}
-                className="mr-2"
+                className="mr-2 accent-yellow-500"
               />
-              <span>{method.label}</span>
+              <span className="text-yellow-200">{method.label}</span>
               {method.key === "stripe" || method.key === "wise" || method.key === "payoneer" ? (
                 <span className="ml-2 text-xs text-gray-500">(Coming soon)</span>
               ) : null}
@@ -165,11 +165,11 @@ const SellerDashboard = () => {
         )}
       </div>
 
-      <div className="mb-6 flex justify-between">
-        <h2 className="text-xl font-semibold">My Listings</h2>
+      <div className="mb-6 flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-yellow-300">My Listings</h2>
         <a
           href={hasActivePayout ? "/create-session" : "#"}
-          className={`bg-[rgb(0,78,102)] text-white px-4 py-2 rounded hover:bg-[rgb(0,90,115)] ${!hasActivePayout ? "opacity-50 cursor-not-allowed" : ""}`}
+          className={`bg-yellow-600 text-black px-4 py-2 rounded hover:bg-yellow-500 ${!hasActivePayout ? "opacity-50 cursor-not-allowed" : ""}`}
           onClick={e => { if (!hasActivePayout) e.preventDefault(); }}
         >
           Create Auction
@@ -197,44 +197,44 @@ const SellerDashboard = () => {
                 >Delete</button>
               </div>
               {/* Commission calculation (dummy) */}
-              <div className="mt-2 text-xs text-gray-600">
+              <div className="mt-2 text-xs text-yellow-200">
                 Commission: 10% = ${auction.buy_now_price ? (auction.buy_now_price * 0.1).toFixed(2) : "-"}
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-gray-600">No auctions listed yet.</p>
+        <p className="text-yellow-200">No auctions listed yet.</p>
       )}
 
       {/* Sales History Section */}
-      <div className="mt-10 bg-gray-50 p-4 rounded-lg border">
-        <h3 className="text-lg font-bold mb-2">Sales History</h3>
+      <div className="mt-10 bg-gradient-to-br from-gray-900 to-black p-4 rounded-lg border border-yellow-700">
+        <h3 className="text-lg font-bold mb-2 text-yellow-300">Sales History</h3>
         {salesHistory.length > 0 ? (
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-gray-200">
-                <th className="p-2">Title</th>
-                <th className="p-2">Sold Price</th>
-                <th className="p-2">Commission</th>
-                <th className="p-2">Buyer</th>
-                <th className="p-2">Date</th>
+              <tr className="bg-gray-800">
+                <th className="p-2 text-yellow-200">Title</th>
+                <th className="p-2 text-yellow-200">Sold Price</th>
+                <th className="p-2 text-yellow-200">Commission</th>
+                <th className="p-2 text-yellow-200">Buyer</th>
+                <th className="p-2 text-yellow-200">Date</th>
               </tr>
             </thead>
             <tbody>
               {salesHistory.map(sale => (
                 <tr key={sale.id} className="border-b">
-                  <td className="p-2">{sale.title}</td>
-                  <td className="p-2">${sale.soldPrice}</td>
-                  <td className="p-2">${sale.commission}</td>
-                  <td className="p-2">{sale.buyer}</td>
-                  <td className="p-2">{sale.date}</td>
+                  <td className="p-2 text-yellow-200">{sale.title}</td>
+                  <td className="p-2 text-yellow-200">${sale.soldPrice}</td>
+                  <td className="p-2 text-yellow-200">${sale.commission}</td>
+                  <td className="p-2 text-yellow-200">{sale.buyer}</td>
+                  <td className="p-2 text-yellow-200">{sale.date}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         ) : (
-          <p className="text-gray-600">No sales history yet.</p>
+          <p className="text-yellow-200">No sales history yet.</p>
         )}
       </div>
     </div>

@@ -101,18 +101,18 @@ const CreateSession = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Create New Auction</h1>
+    <div className="container mx-auto px-4 py-8 text-white">
+      <h1 className="text-3xl font-bold mb-6 text-yellow-400">Create New Auction</h1>
 
       {error && (
-        <div className="max-w-2xl mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <div className="max-w-2xl mb-4 p-4 bg-red-800 text-red-200 rounded border border-red-600">
           {error}
         </div>
       )}
 
       <form
         onSubmit={handleSubmit}
-        className="max-w-2xl bg-white p-6 rounded-lg shadow space-y-4"
+        className="max-w-2xl bg-gradient-to-br from-gray-900 to-black p-6 rounded-lg shadow-lg space-y-4 border border-yellow-700"
       >
         {/* Title */}
         <input
@@ -122,7 +122,7 @@ const CreateSession = () => {
           value={formData.title}
           onChange={handleChange}
           required
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+          className="w-full border border-yellow-700 rounded px-3 py-2 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
         />
 
         {/* Description */}
@@ -133,7 +133,7 @@ const CreateSession = () => {
           onChange={handleChange}
           rows="4"
           required
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+          className="w-full border border-yellow-700 rounded px-3 py-2 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
         ></textarea>
 
         {/* Category */}
@@ -142,7 +142,7 @@ const CreateSession = () => {
           value={formData.category}
           onChange={handleChange}
           required
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+          className="w-full border border-yellow-700 rounded px-3 py-2 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
         >
           <option value="">Select Category</option>
           {categories.map((cat) => (
@@ -160,7 +160,7 @@ const CreateSession = () => {
             accept="image/*"
             multiple
             onChange={handleImageUpload}
-            className="border rounded px-3 py-2 w-full"
+            className="border border-yellow-700 rounded px-3 py-2 w-full bg-black bg-opacity-60 text-yellow-200"
           />
           {formData.images.length > 0 && (
             <div className="flex gap-2 mt-2">
@@ -169,7 +169,7 @@ const CreateSession = () => {
                   key={index}
                   src={img}
                   alt="preview"
-                  className="w-16 h-16 object-cover rounded border"
+                  className="w-16 h-16 object-cover rounded border border-yellow-700"
                 />
               ))}
             </div>
@@ -184,7 +184,7 @@ const CreateSession = () => {
           value={formData.startingPrice}
           onChange={handleChange}
           required
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+          className="w-full border border-yellow-700 rounded px-3 py-2 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
         />
         <input
           type="number"
@@ -193,7 +193,7 @@ const CreateSession = () => {
           value={formData.reservePrice}
           onChange={handleChange}
           required
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+          className="w-full border border-yellow-700 rounded px-3 py-2 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
         />
         <input
           type="number"
@@ -201,7 +201,7 @@ const CreateSession = () => {
           placeholder="Buy Now Price (Optional)"
           value={formData.buyNowPrice}
           onChange={handleChange}
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+          className="w-full border border-yellow-700 rounded px-3 py-2 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
         />
 
         {/* Duration */}
@@ -209,7 +209,7 @@ const CreateSession = () => {
           name="duration"
           value={formData.duration}
           onChange={handleChange}
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+          className="w-full border border-yellow-700 rounded px-3 py-2 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
         >
           <option value="3">3 Days</option>
           <option value="7">7 Days</option>
@@ -224,7 +224,7 @@ const CreateSession = () => {
           placeholder="Shipping details (cost or conditions)"
           value={formData.shipping}
           onChange={handleChange}
-          className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+          className="w-full border border-yellow-700 rounded px-3 py-2 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
         />
 
         {/* Location */}
@@ -246,7 +246,7 @@ const CreateSession = () => {
             value={formData.date}
             onChange={handleChange}
             required
-            className="w-1/2 border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+            className="w-1/2 border border-yellow-700 rounded px-3 py-2 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
           />
           <input
             type="time"
@@ -262,7 +262,7 @@ const CreateSession = () => {
         <button
           type="submit"
           disabled={loading}
-          className={`bg-[rgb(0,78,102)] text-white px-6 py-2 rounded hover:bg-[rgb(0,90,115)] transition ${
+          className={`bg-yellow-600 text-black px-6 py-2 rounded hover:bg-yellow-500 transition font-semibold ${
             loading ? 'opacity-50 cursor-not-allowed' : ''
           }`}
         >

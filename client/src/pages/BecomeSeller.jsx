@@ -114,14 +114,14 @@ const BecomeSeller = () => {
   };
 
   return (
-    <div className="container mx-auto px-2 py-20 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-8 text-[rgb(0,78,102)] text-center">
+    <div className="container mx-auto px-2 py-20 max-w-4xl text-white">
+      <h1 className="text-3xl font-bold mb-8 text-yellow-400 text-center">
         Become a Seller
       </h1>
-      <form onSubmit={handleSubmit} className="bg-white p-8 md:p-14 rounded-2xl shadow-2xl border border-gray-100">
+      <form onSubmit={handleSubmit} className="bg-gradient-to-br from-gray-900 to-black p-8 md:p-14 rounded-2xl shadow-2xl border border-yellow-700">
         {/* Seller Type Selection */}
         <div className="mb-10">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Seller Type</h2>
+          <h2 className="text-xl font-bold text-yellow-300 mb-4">Seller Type</h2>
           <div className="flex gap-8">
             <label className="flex items-center cursor-pointer">
               <input
@@ -130,7 +130,7 @@ const BecomeSeller = () => {
                 value="individual"
                 checked={form.seller_type === "individual"}
                 onChange={handleChange}
-                className="mr-2 accent-[rgb(0,78,102)]"
+                className="mr-2 accent-yellow-500"
               />
               <span className="font-medium">Private Individual</span>
             </label>
@@ -141,7 +141,7 @@ const BecomeSeller = () => {
                 value="store"
                 checked={form.seller_type === "store"}
                 onChange={handleChange}
-                className="mr-2 accent-[rgb(0,78,102)]"
+                className="mr-2 accent-yellow-500"
               />
               <span className="font-medium">Store</span>
             </label>
@@ -149,81 +149,81 @@ const BecomeSeller = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {/* Left column: Store fields if sellerType is store, Individual fields */}
-          <div className="flex flex-col gap-8 bg-gray-50 p-6 rounded-lg border border-gray-100">
+          <div className="flex flex-col gap-8 bg-gradient-to-br from-gray-900 to-black p-6 rounded-lg border border-yellow-700">
             {form.seller_type === "store" && (
               <div className="mb-6">
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">Store Details</h3>
-                <input name="store_name" value={form.store_name} onChange={handleChange} placeholder="Store Name (optional)" className="border p-2 rounded mb-2 w-full" />
-                <textarea name="store_description" value={form.store_description} onChange={handleChange} placeholder="Store Description (optional)" className="border p-2 rounded mb-2 w-full" />
-                <input type="file" name="store_logo" onChange={handleChange} className="border p-2 rounded mb-2 w-full" accept="image/*" />
+                <h3 className="text-lg font-semibold text-yellow-300 mb-2">Store Details</h3>
+                <input name="store_name" value={form.store_name} onChange={handleChange} placeholder="Store Name (optional)" className="border border-yellow-700 p-2 rounded mb-2 w-full bg-black bg-opacity-60 text-yellow-200" />
+                <textarea name="store_description" value={form.store_description} onChange={handleChange} placeholder="Store Description (optional)" className="border border-yellow-700 p-2 rounded mb-2 w-full bg-black bg-opacity-60 text-yellow-200" />
+                <input type="file" name="store_logo" onChange={handleChange} className="border border-yellow-700 p-2 rounded mb-2 w-full bg-black bg-opacity-60 text-yellow-200" accept="image/*" />
               </div>
             )}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-700 mb-3">Personal Info</h3>
-              <input name="firstName" value={form.firstName} onChange={handleChange} placeholder="First Name" className="border p-2 rounded mb-3 w-full" required />
-              <input name="lastName" value={form.lastName} onChange={handleChange} placeholder="Last Name" className="border p-2 rounded mb-3 w-full" required />
-              <input name="email" value={form.email} onChange={handleChange} placeholder="Email" className="border p-2 rounded mb-3 w-full" type="email" required />
-              <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone" className="border p-2 rounded mb-3 w-full" required />
-              <input name="address" value={form.address} onChange={handleChange} placeholder="Address" className="border p-2 rounded mb-3 w-full" required />
+              <h3 className="text-lg font-semibold text-yellow-300 mb-3">Personal Info</h3>
+              <input name="firstName" value={form.firstName} onChange={handleChange} placeholder="First Name" className="border border-yellow-700 p-2 rounded mb-3 w-full bg-black bg-opacity-60 text-yellow-200" required />
+              <input name="lastName" value={form.lastName} onChange={handleChange} placeholder="Last Name" className="border border-yellow-700 p-2 rounded mb-3 w-full bg-black bg-opacity-60 text-yellow-200" required />
+              <input name="email" value={form.email} onChange={handleChange} placeholder="Email" className="border border-yellow-700 p-2 rounded mb-3 w-full bg-black bg-opacity-60 text-yellow-200" type="email" required />
+              <input name="phone" value={form.phone} onChange={handleChange} placeholder="Phone" className="border border-yellow-700 p-2 rounded mb-3 w-full bg-black bg-opacity-60 text-yellow-200" required />
+              <input name="address" value={form.address} onChange={handleChange} placeholder="Address" className="border border-yellow-700 p-2 rounded mb-3 w-full bg-black bg-opacity-60 text-yellow-200" required />
             </div>
           </div>
           {/* Right column: Other fields, payout, KYC & tax */}
-          <div className="flex flex-col gap-8 bg-gray-50 p-4 md:p-6 rounded-lg border border-gray-100 mt-8 md:mt-0">
+          <div className="flex flex-col gap-8 bg-gradient-to-br from-gray-900 to-black p-4 md:p-6 rounded-lg border border-yellow-700 mt-8 md:mt-0">
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">Location & Security</h3>
-              <input name="zip" value={form.zip} onChange={handleChange} placeholder="ZIP" className="border p-2 rounded mb-2 w-full" required />
-              <input name="state" value={form.state} onChange={handleChange} placeholder="State" className="border p-2 rounded mb-2 w-full" required />
-              <input name="country" value={form.country} onChange={handleChange} placeholder="Country" className="border p-2 rounded mb-2 w-full" required />
+              <h3 className="text-lg font-semibold text-yellow-300 mb-2">Location & Security</h3>
+              <input name="zip" value={form.zip} onChange={handleChange} placeholder="ZIP" className="border border-yellow-700 p-2 rounded mb-2 w-full bg-black bg-opacity-60 text-yellow-200" required />
+              <input name="state" value={form.state} onChange={handleChange} placeholder="State" className="border border-yellow-700 p-2 rounded mb-2 w-full bg-black bg-opacity-60 text-yellow-200" required />
+              <input name="country" value={form.country} onChange={handleChange} placeholder="Country" className="border border-yellow-700 p-2 rounded mb-2 w-full bg-black bg-opacity-60 text-yellow-200" required />
             </div>
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">Payout Methods</h3>
+              <h3 className="text-lg font-semibold text-yellow-300 mb-2">Payout Methods</h3>
               <label className="flex items-center mb-2">
-                <input type="checkbox" name="bank_enabled" checked={form.bank_enabled} onChange={handleChange} className="mr-2" /> Bank Account
+                <input type="checkbox" name="bank_enabled" checked={form.bank_enabled} onChange={handleChange} className="mr-2 accent-yellow-500" /> Bank Account
               </label>
               {form.bank_enabled && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-2">
-                  <input name="bank_iban" value={form.bank_iban} onChange={handleChange} placeholder="IBAN" className="border p-2 rounded w-full" />
-                  <input name="bank_routing" value={form.bank_routing} onChange={handleChange} placeholder="Routing Number" className="border p-2 rounded w-full" />
-                  <input name="bank_account" value={form.bank_account} onChange={handleChange} placeholder="Account Number" className="border p-2 rounded w-full" />
+                  <input name="bank_iban" value={form.bank_iban} onChange={handleChange} placeholder="IBAN" className="border border-yellow-700 p-2 rounded w-full bg-black bg-opacity-60 text-yellow-200" />
+                  <input name="bank_routing" value={form.bank_routing} onChange={handleChange} placeholder="Routing Number" className="border border-yellow-700 p-2 rounded w-full bg-black bg-opacity-60 text-yellow-200" />
+                  <input name="bank_account" value={form.bank_account} onChange={handleChange} placeholder="Account Number" className="border border-yellow-700 p-2 rounded w-full bg-black bg-opacity-60 text-yellow-200" />
                 </div>
               )}
               <label className="flex items-center mb-2">
-                <input type="checkbox" name="paypal_enabled" checked={form.paypal_enabled} onChange={handleChange} className="mr-2" /> PayPal
+                <input type="checkbox" name="paypal_enabled" checked={form.paypal_enabled} onChange={handleChange} className="mr-2 accent-yellow-500" /> PayPal
               </label>
               {form.paypal_enabled && (
-                <input name="paypal_details" value={form.paypal_details} onChange={handleChange} placeholder="PayPal Email/Details" className="border p-2 rounded mb-2 w-full" />
+                <input name="paypal_details" value={form.paypal_details} onChange={handleChange} placeholder="PayPal Email/Details" className="border border-yellow-700 p-2 rounded mb-2 w-full bg-black bg-opacity-60 text-yellow-200" />
               )}
               <label className="flex items-center mb-2">
-                <input type="checkbox" name="card_enabled" checked={form.card_enabled} onChange={handleChange} className="mr-2" /> Credit/Debit Card (Stripe/Square)
+                <input type="checkbox" name="card_enabled" checked={form.card_enabled} onChange={handleChange} className="mr-2 accent-yellow-500" /> Credit/Debit Card (Stripe/Square)
               </label>
               {form.card_enabled && (
-                <input name="card_details" value={form.card_details} onChange={handleChange} placeholder="Card Details (tokenized or last 4 digits)" className="border p-2 rounded mb-2 w-full" />
+                <input name="card_details" value={form.card_details} onChange={handleChange} placeholder="Card Details (tokenized or last 4 digits)" className="border border-yellow-700 p-2 rounded mb-2 w-full bg-black bg-opacity-60 text-yellow-200" />
               )}
               {!hasActivePayout && (
                 <p className="text-red-600 mt-2">You must activate at least one payout method (PayPal, Card, or Bank) to list items.</p>
               )}
             </div>
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-700 mb-2">KYC & Tax Information</h3>
-              <select name="tax_form" value={form.tax_form} onChange={handleChange} className="border p-2 rounded mb-2 w-full" required>
+              <h3 className="text-lg font-semibold text-yellow-300 mb-2">KYC & Tax Information</h3>
+              <select name="tax_form" value={form.tax_form} onChange={handleChange} className="border border-yellow-700 p-2 rounded mb-2 w-full bg-black bg-opacity-60 text-yellow-200" required>
                 <option value="">Select Tax Form</option>
                 <option value="W-9">W-9 (US)</option>
                 <option value="W-8BEN">W-8BEN (Non-US)</option>
               </select>
-              <input name="tax_id" value={form.tax_id} onChange={handleChange} placeholder="Tax ID (SSN/ITIN/EIN or equivalent)" className="border p-2 rounded mb-2 w-full" required />
-              <input name="date_of_birth" value={form.date_of_birth} onChange={handleChange} type="date" placeholder="Date of Birth" className="border p-2 rounded mb-2 w-full" required />
-              <input name="legal_tax_address" value={form.legal_tax_address} onChange={handleChange} placeholder="Legal/Tax Address" className="border p-2 rounded mb-2 w-full" required />
-              <label className="block mb-2">Government ID Upload (passport/driver’s license)</label>
-              <input type="file" name="gov_id" onChange={handleChange} className="border p-2 rounded mb-2 w-full" accept="image/*,.pdf" />
-              <label className="block mb-2">Optional Selfie/Live Check</label>
-              <input type="file" name="selfie" onChange={handleChange} className="border p-2 rounded mb-3 w-full" accept="image/*" />
+              <input name="tax_id" value={form.tax_id} onChange={handleChange} placeholder="Tax ID (SSN/ITIN/EIN or equivalent)" className="border border-yellow-700 p-2 rounded mb-2 w-full bg-black bg-opacity-60 text-yellow-200" required />
+              <input name="date_of_birth" value={form.date_of_birth} onChange={handleChange} type="date" placeholder="Date of Birth" className="border border-yellow-700 p-2 rounded mb-2 w-full bg-black bg-opacity-60 text-yellow-200" required />
+              <input name="legal_tax_address" value={form.legal_tax_address} onChange={handleChange} placeholder="Legal/Tax Address" className="border border-yellow-700 p-2 rounded mb-2 w-full bg-black bg-opacity-60 text-yellow-200" required />
+              <label className="block mb-2 text-yellow-200">Government ID Upload (passport/driver’s license)</label>
+              <input type="file" name="gov_id" onChange={handleChange} className="border border-yellow-700 p-2 rounded mb-2 w-full bg-black bg-opacity-60 text-yellow-200" accept="image/*,.pdf" />
+              <label className="block mb-2 text-yellow-200">Optional Selfie/Live Check</label>
+              <input type="file" name="selfie" onChange={handleChange} className="border border-yellow-700 p-2 rounded mb-3 w-full bg-black bg-opacity-60 text-yellow-200" accept="image/*" />
             </div>
           </div>
         </div>
         {error && <p className="text-red-600 mt-2">{error}</p>}
         <button
           type="submit"
-          className={`w-full mt-10 bg-[rgb(0,78,102)] text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-[rgb(0,90,115)] transition ${!hasActivePayout ? "opacity-50 cursor-not-allowed" : ""}`}
+          className={`w-full mt-10 bg-yellow-600 text-black px-8 py-3 rounded-lg text-lg font-semibold hover:bg-yellow-500 transition ${!hasActivePayout ? "opacity-50 cursor-not-allowed" : ""}`}
           disabled={!hasActivePayout}
         >
           Upgrade to Seller

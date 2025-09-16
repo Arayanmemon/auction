@@ -51,7 +51,7 @@ const AuctionDetail = () => {
   }, [id]);
 
   if (!auction) {
-    return <p className="text-center mt-10">Auction not found.</p>;
+    return <p className="text-center mt-10 text-white">Auction not found.</p>;
   }
 
   // Always return images array
@@ -122,9 +122,9 @@ const AuctionDetail = () => {
   };
   
   return (
-    <div className="container my-15 mx-auto px-4 py-8">
+    <div className="container my-15 mx-auto px-4 py-8 text-white">
       {/* Auction Title */}
-      <h1 className="text-3xl font-bold mb-4">{auction.title}</h1>
+      <h1 className="text-3xl font-bold mb-4 text-yellow-400">{auction.title}</h1>
 
       <div className="grid md:grid-cols-2 gap-8">
         {/* IMAGE GALLERY SECTION */}
@@ -139,8 +139,8 @@ const AuctionDetail = () => {
                   alt={`Thumbnail ${index + 1}`}
                   className={`w-16 h-16 object-cover cursor-pointer border rounded ${
                     selectedImage === img
-                      ? "border-[rgb(35,96,114)]"
-                      : "border-gray-300 hover:border-gray-500"
+                      ? "border-yellow-500"
+                      : "border-gray-700 hover:border-yellow-500"
                   }`}
                   onClick={() => setSelectedImage(img)}
                 />
@@ -153,20 +153,20 @@ const AuctionDetail = () => {
             <img
               src={`${import.meta.env.VITE_API_URL}` + selectedImage}
               alt={auction.title}
-              className="w-full h-96 object-contain transform transition-transform duration-300 group-hover:scale-110"
+              className="w-full h-96 object-contain transform transition-transform duration-300 group-hover:scale-110 bg-black"
             />
 
             {/* Save Button */}
             <button
               onClick={toggleWishlist}
-              className="absolute top-2 right-2 px-3 py-1 border rounded text-sm font-medium bg-white hover:bg-gray-100"
+              className="absolute top-2 right-2 px-3 py-1 border rounded text-sm font-medium bg-yellow-600 text-black hover:bg-yellow-500"
             >
               {isSaved ? "♥ Saved" : "♡ Save"}
             </button>
 
             {/* Share Button */}
             <button
-              className="absolute bottom-2 right-2 p-2 border rounded bg-white hover:bg-gray-100"
+              className="absolute bottom-2 right-2 p-2 border rounded bg-gray-800 text-yellow-200 hover:bg-gray-700"
               aria-label="Share"
               onClick={() => alert("Share functionality coming soon")}
             >
@@ -176,38 +176,38 @@ const AuctionDetail = () => {
         </div>
 
         {/* AUCTION INFO SECTION */}
-        <div className="border rounded-lg p-5 shadow">
+        <div className="border rounded-lg p-5 shadow bg-gradient-to-br from-gray-900 to-black border-yellow-700">
           {/* Estimate and End Time */}
           {auction.starting_price && (
-            <p className="text-gray-500 mb-1">
+            <p className="text-yellow-200 mb-1">
               Starting Price: ${auction.starting_price}
             </p>
           )}
           {auction.end_time && (
-            <p className="text-sm text-gray-500 mb-3">
+            <p className="text-sm text-yellow-200 mb-3">
               Ends on {auction.end_time.toLocaleString()}
             </p>
           )}
 
           {/* Current Price & Bids */}
           <div className="flex items-baseline gap-2 mb-2">
-            <p className="text-3xl font-bold text-[rgb(0,78,102)]">
+            <p className="text-3xl font-bold text-yellow-400">
               ${auction.current_bid}
             </p>
-            <span className="text-gray-500 text-sm">
+            <span className="text-yellow-200 text-sm">
               ({auction.bid_count} bids)
             </span>
           </div>
 
           {/* Countdown Timer */}
           {auction.end_time && (
-            <div className="text-sm mb-3">
+            <div className="text-sm mb-3 text-yellow-200">
               <CountdownTimer endTime={auction.end_time} />
             </div>
           )}
 
           {/* Max Bid Input */}
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-yellow-200 mb-1">
             Set Your Max Bid
           </label>
           <input
@@ -215,20 +215,20 @@ const AuctionDetail = () => {
             value={bidAmount}
             onChange={(e) => setBidAmount(e.target.value)}
             placeholder={`$${auction.current_bid} or more`}
-            className="border border-gray-300 rounded px-3 py-2 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
+            className="border border-yellow-700 rounded px-3 py-2 w-full mb-4 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
           />
 
           {/* Place Bid Button */}
           <button
             onClick={handlePlaceBid}
-            className="w-full bg-[rgb(0,78,102)] text-white py-2 rounded hover:bg-[rgb(0,90,115)] transition font-semibold"
+            className="w-full bg-yellow-600 text-black py-2 rounded hover:bg-yellow-500 transition font-semibold"
           >
             Place Bid
           </button>
 
           {/* Watchers Info */}
           {auction.watchers_count && (
-            <p className="text-sm text-gray-500 mt-3">
+            <p className="text-sm text-yellow-200 mt-3">
               {auction.watchers_count} bidders are watching this item
             </p>
           )}
@@ -237,17 +237,17 @@ const AuctionDetail = () => {
 
       {/* Description */}
       <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-2">Description</h2>
-        <p className="text-gray-600">{auction.description}</p>
+        <h2 className="text-2xl font-bold mb-2 text-yellow-300">Description</h2>
+        <p className="text-yellow-200">{auction.description}</p>
       </div>
 
       {/* Bid History */}
       {bidHistory.length > 0 && (
         <div className="mt-10">
-          <h2 className="text-2xl font-bold mb-4">Bid History</h2>
-          <div className="border rounded-lg overflow-hidden">
-            <table className="w-full text-left">
-              <thead className="bg-gray-100">
+          <h2 className="text-2xl font-bold mb-4 text-yellow-300">Bid History</h2>
+          <div className="border rounded-lg overflow-hidden bg-gradient-to-br from-gray-900 to-black border-yellow-700">
+            <table className="w-full text-left text-yellow-200">
+              <thead className="bg-gray-800">
                 <tr>
                   <th className="p-3 border-b">User</th>
                   <th className="p-3 border-b">Amount</th>
@@ -256,7 +256,7 @@ const AuctionDetail = () => {
               </thead>
               <tbody>
                 {bidHistory.map((bid, index) => (
-                  <tr key={index} className="hover:bg-gray-50">
+                  <tr key={index} className="hover:bg-gray-800">
                     <td className="p-3 border-b">{bid.bidder['name']}</td>
                     <td className="p-3 border-b">${bid.amount}</td>
                     <td className="p-3 border-b">{bid.created_at}</td>
