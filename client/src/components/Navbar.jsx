@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, Heart, ShoppingCart } from "lucide-react";
 import { useCategory } from "../CategoryContext";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useSearchBar } from "../contexts/SearchBarContext";
@@ -17,6 +17,10 @@ const Navbar = () => {
   // Add null check and default values
   const authContext = useAuthContext();
   const { user, logout } = authContext || { user: null, logout: () => {} };
+
+  // derive simple counts from user object when available; fall back to 0
+  const favCount = (user?.favorites?.length ?? user?.watchlist?.length ?? 0);
+  const cartCount = (user?.cart?.length ?? 0);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -85,6 +89,22 @@ const Navbar = () => {
               {user.is_seller ? "Seller Dashboard" : "Buyer Dashboard"}
             </Link>
           )}
+
+          {/* Icons: Favorites & Cart */}
+          <div className="flex items-center gap-4 mr-2">
+            <Link to="/watchlist" className="relative text-yellow-300 hover:text-yellow-400">
+              <Heart size={20} />
+              {favCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-yellow-600 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">{favCount}</span>
+              )}
+            </Link>
+            <Link to="/cart" className="relative text-yellow-300 hover:text-yellow-400">
+              <ShoppingCart size={20} />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-yellow-600 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">{cartCount}</span>
+              )}
+            </Link>
+          </div>
 
           {/* Auth Section */}
           {user ? (

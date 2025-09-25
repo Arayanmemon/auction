@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import BuyerDashboard from "./pages/BuyerDashboard";
 import Watchlist from "./pages/Watchlist";
+import Cart from "./pages/Cart";
 import AccountSettings from "./pages/AccountSettings";
 import ActiveBids from "./pages/ActiveBids";
 import PurchaseHistory from "./pages/PurchaseHistory";
@@ -39,6 +40,8 @@ const AppRouter = () => {
   <Route path="/about" element={<About />} />
   <Route path="/contact" element={<Contact />} />
   <Route path="/buyer/watchlist" element={<Watchlist />} />
+  <Route path="/watchlist" element={<Watchlist />} />
+  <Route path="/cart" element={<Cart />} />
   <Route path="/buyer/account-settings" element={<AccountSettings />} />
   <Route path="/buyer/active-bids" element={<ActiveBids />} />
   <Route path="/buyer/purchase-history" element={<PurchaseHistory />} />
