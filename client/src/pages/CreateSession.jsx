@@ -19,6 +19,7 @@ const CreateSession = () => {
     location: "",
     date: "",
     time: "",
+    auctionType: "bid", // default to 'bid'
   });
 
   const [loading, setLoading] = useState(false);
@@ -65,6 +66,11 @@ const CreateSession = () => {
       auctionData.append('shipping', formData.shipping);
       auctionData.append('location', formData.location);
       auctionData.append('category_id', 1);
+      if(formData.auctionType === 'bid') {
+      auctionData.append('is_bid', 1);
+      } else {
+      auctionData.append('is_bid', 0);
+      }
       // Handle image files
       const imageFiles = document.querySelector('input[type="file"]').files;
       for (let i = 0; i < imageFiles.length; i++) {
@@ -215,6 +221,18 @@ const CreateSession = () => {
           <option value="7">7 Days</option>
           <option value="14">14 Days</option>
           <option value="30">30 Days</option>
+        </select>
+
+        {/* Auction Type */}
+        <select
+          name="auctionType"
+          value={formData.auctionType}
+          onChange={handleChange}
+          required
+          className="w-full border border-yellow-700 rounded px-3 py-2 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
+        >
+          <option value="bid">Bid</option>
+          <option value="sell">Sell Immediately</option>
         </select>
 
         {/* Shipping */}

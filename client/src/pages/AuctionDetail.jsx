@@ -206,25 +206,36 @@ const AuctionDetail = () => {
             </div>
           )}
 
-          {/* Max Bid Input */}
-          <label className="block text-sm font-medium text-yellow-200 mb-1">
-            Set Your Max Bid
-          </label>
-          <input
-            type="number"
-            value={bidAmount}
-            onChange={(e) => setBidAmount(e.target.value)}
-            placeholder={`$${auction.current_bid} or more`}
-            className="border border-yellow-700 rounded px-3 py-2 w-full mb-4 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
-          />
-
-          {/* Place Bid Button */}
-          <button
-            onClick={handlePlaceBid}
-            className="w-full bg-yellow-600 text-black py-2 rounded hover:bg-yellow-500 transition font-semibold"
-          >
-            Place Bid
-          </button>
+          {/* Conditional rendering based on auction type */}
+          {auction.is_bid ? (
+            <>
+              {/* Max Bid Input */}
+              <label className="block text-sm font-medium text-yellow-200 mb-1">
+                Set Your Max Bid
+              </label>
+              <input
+                type="number"
+                value={bidAmount}
+                onChange={(e) => setBidAmount(e.target.value)}
+                placeholder={`$${auction.current_bid} or more`}
+                className="border border-yellow-700 rounded px-3 py-2 w-full mb-4 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
+              />
+              {/* Place Bid Button */}
+              <button
+                onClick={handlePlaceBid}
+                className="w-full bg-yellow-600 text-black py-2 rounded hover:bg-yellow-500 transition font-semibold"
+              >
+                Place Bid
+              </button>
+            </>
+          ) : (
+            <button
+              className="w-full bg-green-600 text-black py-2 rounded hover:bg-green-500 transition font-semibold"
+              onClick={() => alert('Buy functionality coming soon')}
+            >
+              Buy Now
+            </button>
+          )}
 
           {/* Watchers Info */}
           {auction.watchers_count && (
@@ -242,7 +253,7 @@ const AuctionDetail = () => {
       </div>
 
       {/* Bid History */}
-      {bidHistory.length > 0 && (
+      {auction.auction_type === 'bid' && bidHistory.length > 0 && (
         <div className="mt-10">
           <h2 className="text-2xl font-bold mb-4 text-yellow-300">Bid History</h2>
           <div className="border rounded-lg overflow-hidden bg-gradient-to-br from-gray-900 to-black border-yellow-700">

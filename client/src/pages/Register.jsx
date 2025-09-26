@@ -188,25 +188,6 @@ const Register = () => {
               required
               disabled={loading}
             />
-            <textarea
-              name="address"
-              placeholder="Full Address"
-              value={formData.address}
-              onChange={handleChange}
-              className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
-              required
-              disabled={loading}
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              className="border rounded px-3 py-2 w-full mt-3 focus:outline-none focus:ring-2 focus:ring-[rgb(0,78,102)]"
-              required
-              disabled={loading}
-            />
             <div className="flex gap-4 mt-3">
               <h3>Recieve OTP: </h3>
               <div className="flex gap-2">

@@ -38,6 +38,8 @@ class SellerController extends Controller
 
     public function createAuction(CreateAuctionRequest $request): JsonResponse
     {
+        // dd($request->all());
+        // $request->mergeIfMissing(['is_bid' => true]);
         $user = $request->user();
         $auctionData = $request->validated();
         $imagePaths = [];

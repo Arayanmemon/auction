@@ -15,6 +15,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->json('images')->nullable();
+            $table->boolean('is_bid')->default(true);
             $table->decimal('starting_price', 15, 2);
             $table->decimal('reserve_price', 15, 2)->nullable();
             $table->decimal('buy_now_price', 15, 2)->nullable();

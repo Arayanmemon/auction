@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
 
 const ItemCard = ({ item }) => {
+  let imgSrc = 'https://placehold.co/400x400/png?text=Auction+Item';
+  if (item.images && item.images[0]) {
+    imgSrc = item.images[0].startsWith('/assets/')
+      ? item.images[0]
+      : `${import.meta.env.VITE_API_URL}${item.images[0]}`;
+  }
   return (
     <div className="border rounded-lg shadow hover:shadow-lg transition bg-transparent overflow-hidden">
       {/* Buy Now Badge */}
@@ -9,16 +15,16 @@ const ItemCard = ({ item }) => {
       </div>
       {/* Item Image */}
       <img
-        src={item.images ? item.images[0] : 'https://placehold.co/400x400/png?text=Item'}
+        src={imgSrc}
         alt={item.title}
         className="w-full h-48 object-cover"
       />
       {/* Item Info */}
       <div className="p-4">
         <h3 className="text-lg font-semibold text-white mb-2 truncate">{item.title}</h3>
-        <p className="text-white text-sm mb-2">${item.price}</p>
+        <p className="text-white text-sm mb-2">${item.buy_now_price}</p>
         <Link
-          to={`/item/${item.id}`}
+          to={`/auction/${item.id}`}
           className="block text-center bg-yellow-600 text-black px-4 py-2 rounded font-bold hover:bg-yellow-500 transition"
         >
           Buy Now

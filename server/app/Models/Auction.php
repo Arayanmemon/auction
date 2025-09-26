@@ -35,6 +35,7 @@ class Auction extends Model
         'is_featured',
         'auto_relist',
         'featured_until',
+        'is_bid',
     ];
 
     public function casts(): array
@@ -52,6 +53,7 @@ class Auction extends Model
             'is_featured' => 'boolean',
             'auto_relist' => 'boolean',
             'featured_until' => 'datetime',
+            'is_bid' => 'boolean',
         ];
     }
 

@@ -33,6 +33,7 @@ class AuctionResource extends JsonResource
             'is_featured' => $this->is_featured,
             'auto_relist' => $this->auto_relist,
             'is_active' => $this->isActive(),
+            'is_bid' => $this->is_bid,
             'has_ended' => $this->hasEnded(),
             'seller' => new UserResource($this->whenLoaded('seller')),
             'category' => new CategoryResource($this->whenLoaded('category')),

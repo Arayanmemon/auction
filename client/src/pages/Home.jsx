@@ -26,6 +26,16 @@ const Home = () => {
           ? auctions.filter((a) => a.category === selectedCategory)
           : categoryAuctions[selectedCategory] || []);
 
+  // Filter auctions for each section
+  const bidAuctions = filteredAuctions.filter(a => a.is_bid);
+  const buyNowItems = filteredAuctions.filter(a => !a.is_bid);
+
+  // Show only first 4 auctions/items on homepage
+  const previewAuctions = bidAuctions.slice(0, 4);
+  const previewBuyItems = buyNowItems.slice(0, 4);
+  console.log("Preview Buy Items:", previewBuyItems);
+  console.log("All Buy Now Items:", buyNowItems);
+
   // Scroll to auctions-section if hash present in URL
   useEffect(() => {
     if (window.location.hash === "#auctions-section") {
@@ -53,12 +63,6 @@ const Home = () => {
 
     fetchSellerAuctions();
   }, []);
-
-
-  // Show only first 4 auctions on homepage for auctions and buy now items
-  const previewAuctions = filteredAuctions.slice(0, 4);
-  const allBuyItems = Object.values(itemCategories).flat();
-  const previewBuyItems = allBuyItems.slice(0, 4);
 
   return (
     <div>
@@ -112,8 +116,7 @@ const Home = () => {
           </p>
         )}
       </section>
-    </div>
-  );
+
       {searchBarOpen && (
         <SearchBar
           value={searchValue}
@@ -121,30 +124,8 @@ const Home = () => {
           onClose={() => setSearchBarOpen(false)}
         />
       )}
-
-          {/* View All Link */}
-        //   <Link
-        //     to="/auctions"
-        //     className="text-white hover:underline text-sm font-medium"
-        //   >
-        //     View All
-        //   </Link>
-        // </div>
-
-        // {previewAuctions.length > 0 ? (
-        //   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        //     {previewAuctions.map((auction) => (
-        //       <AuctionCard key={auction.id} auction={auction} />
-        //     ))}
-        //   </div>
-        // ) : (
-        //   <p className="text-gray-600 text-center">
-        //     No auctions available in this category.
-        //   </p>
-        // )}
-  //     </section>
-  //   </div>
-  // );
+    </div>
+  );
 };
 
 export default Home;
