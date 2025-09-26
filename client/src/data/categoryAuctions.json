@@ -1,34 +1,61 @@
 {
-  "Cars": [
-    { "id": 1, "title": "Tesla Model S", "images": ["/assets/auction1.jpg"], "current_bid": 75000, "end_time": 1736870400000 },
-    { "id": 2, "title": "BMW M3", "images": ["/assets/auction1.jpg"], "current_bid": 60000, "end_time": 1736956800000 }
-  ],
-  "Phones": [
-    { "id": 3, "title": "iPhone 14 Pro Max", "images": ["/assets/watch-itm.jpg"], "current_bid": 1200, "end_time": 1736832000000 },
-    { "id": 4, "title": "Samsung Galaxy S23", "images": ["/assets/watch-itm.jpg"], "current_bid": 1000, "end_time": 1736846400000 }
-  ],
-  "Computers": [
-    { "id": 5, "title": "MacBook Pro 16\"", "images": ["/assets/auction1.jpg"], "current_bid": 2500, "end_time": 1736870400000 },
-    { "id": 6, "title": "Alienware Gaming PC", "images": ["/assets/auction1.jpg"], "current_bid": 3200, "end_time": 1736884800000 }
-  ],
-  "Electronics": [
-    { "id": 7, "title": "Sony 4K TV", "images": ["/assets/watch-itm.jpg"], "current_bid": 1800, "end_time": 1736870400000 },
-    { "id": 8, "title": "Canon EOS Camera", "images": ["/assets/watch-itm.jpg"], "current_bid": 1100, "end_time": 1736863200000 }
-  ],
-  "Antiques": [
-    { "id": 9, "title": "Victorian Vase", "images": ["/assets/auction1.jpg"], "current_bid": 900, "end_time": 1736870400000 },
-    { "id": 10, "title": "Vintage Clock", "images": ["/assets/auction1.jpg"], "current_bid": 1200, "end_time": 1736870400000 }
-  ],
-  "Watches": [
-    { "id": 11, "title": "Rolex Daytona", "images": ["/assets/watch-itm.jpg"], "current_bid": 15000, "end_time": 1736870400000 },
-    { "id": 12, "title": "Patek Philippe Nautilus", "images": ["/assets/watch-itm.jpg"], "current_bid": 30000, "end_time": 1736870400000 }
-  ],
-  "Jewelry": [
-    { "id": 13, "title": "Diamond Necklace", "images": ["/assets/jwl.png"], "current_bid": 8000, "end_time": 1736870400000 },
-    { "id": 14, "title": "Emerald Ring", "images": ["/assets/jwl.png"], "current_bid": 5500, "end_time": 1736870400000 }
-  ],
-  "Collectibles": [
-    { "id": 15, "title": "Rare Coin", "images": ["/assets/auction1.jpg"], "current_bid": 1000, "end_time": 1736870400000 },
-    { "id": 16, "title": "Vintage Stamp", "images": ["/assets/auction1.jpg"], "current_bid": 700, "end_time": 1736870400000 }
-  ]
+  "Clothing, Shoes & Accessories": {
+    "top": [
+      "Women's Clothing",
+      "Women's Shoes",
+      "Women's Accessories",
+      "Men's Clothing",
+      "Men's Shoes",
+      "Men's Accessories",
+      "Girls' Clothing",
+      "Boys' Clothing"
+    ],
+    "auctions": [
+      { "id": 101, "title": "Luxury Handbag - Brand A", "images": ["/assets/auction1.jpg"], "current_bid": 1200, "end_time": 1738000000000 },
+      { "id": 102, "title": "Men's Leather Jacket", "images": ["/assets/auction1.jpg"], "current_bid": 350, "end_time": 1738050000000 }
+    ]
+  },
+  "Toys & Hobbies": {
+    "top": [
+      "Diecast & Toy Vehicles",
+      "Model Railroads & Trains",
+      "Action Figures",
+      "Collectible Card Games",
+      "Models & Kits",
+      "Board Games"
+    ],
+    "auctions": [
+      { "id": 201, "title": "Vintage LEGO Set", "images": ["/assets/auction1.jpg"], "current_bid": 450, "end_time": 1738100000000 }
+    ]
+  },
+  "Sporting Goods": {
+    "top": ["Golf Clubs", "Hunting Equipment", "Cycling Equipment", "Fishing Equipment", "Team Sports"],
+    "auctions": [
+      { "id": 301, "title": "Pro Golf Club Set", "images": ["/assets/auction1.jpg"], "current_bid": 800, "end_time": 1738200000000 }
+    ]
+  },
+  "Business & Industrial": {
+    "top": ["Heavy Equipment", "Healthcare", "Restaurant & Food Service", "CNC/Metalworking"],
+    "auctions": [
+      { "id": 401, "title": "Industrial Drill Press", "images": ["/assets/auction1.jpg"], "current_bid": 1200, "end_time": 1738300000000 }
+    ]
+  },
+  "Jewelry & Watches": {
+    "top": ["Luxury Watches", "All Watches/Parts/Accessories", "Fine Jewelry", "Fashion Jewelry", "Loose Diamonds & Gemstones"],
+    "auctions": [
+      { "id": 501, "title": "Rolex Submariner", "images": ["/assets/watch-itm.jpg"], "current_bid": 9500, "end_time": 1738400000000 }
+    ]
+  },
+  "Refurbished": {
+    "top": ["Cell Phones & Smartphones", "Laptops", "Desktop Computers", "Tablets", "Smart Watches"],
+    "auctions": [
+      { "id": 601, "title": "Refurbished iPhone 12", "images": ["/assets/watch-itm.jpg"], "current_bid": 250, "end_time": 1738500000000 }
+    ]
+  },
+  "Digital Goods": {
+    "top": ["Resume Templates", "Printable Planners", "Stock Photos", "E-books", "Music & Sound Effects"],
+    "auctions": [
+      { "id": 701, "title": "Stock Photo Bundle", "images": ["/assets/auction1.jpg"], "current_bid": 40, "end_time": 1738600000000 }
+    ]
+  }
 }

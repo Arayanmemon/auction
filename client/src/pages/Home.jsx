@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { heroAuctions } from "../data/heroAuctions";
-import { categoryAuctions } from "../data/categoryAuctions";
+import categoryAuctionsJson from "../data/categoryAuctions.json";
 import AuctionCard from "../components/AuctionCard";
 import ItemCard from "../components/ItemCard";
 import { itemCategories } from "../data/itemCategories";
@@ -18,13 +18,42 @@ const Home = () => {
   // Filter auctions safely
   const { searchBarOpen, setSearchBarOpen } = useSearchBar();
   const [searchValue, setSearchValue] = useState("");
+  // Normalize mock category data to support new structure (each section has { top, auctions })
+  const categoryAuctions = {};
+  Object.keys(categoryAuctionsJson).forEach((k) => {
+    const val = categoryAuctionsJson[k];
+    if (Array.isArray(val)) {
+      categoryAuctions[k] = { auctions: val, top: [] };
+    } else if (val && typeof val === 'object') {
+      categoryAuctions[k] = {
+        auctions: Array.isArray(val.auctions) ? val.auctions : [],
+        top: Array.isArray(val.top) ? val.top : [],
+      };
+    } else {
+      categoryAuctions[k] = { auctions: [], top: [] };
+    }
+  });
+
+  const allMockAuctions = Object.values(categoryAuctions).flatMap((c) => c.auctions || []);
+
   // Prefer backend auctions, fallback to mock data if none
-  const filteredAuctions =
-    selectedCategory === "All"
-      ? (auctions.length > 0 ? auctions : Object.values(categoryAuctions).flat())
-      : (auctions.filter((a) => a.category === selectedCategory).length > 0
-          ? auctions.filter((a) => a.category === selectedCategory)
-          : categoryAuctions[selectedCategory] || []);
+  let filteredAuctions = [];
+  if (selectedCategory === "All") {
+    filteredAuctions = auctions.length > 0 ? auctions : allMockAuctions;
+  } else {
+    // If backend has auctions with category field matching, use them
+    const backendMatches = auctions.filter((a) => (a.category || '').toLowerCase() === selectedCategory.toLowerCase());
+    if (backendMatches.length > 0) {
+      filteredAuctions = backendMatches;
+    } else if (categoryAuctions[selectedCategory]) {
+      filteredAuctions = categoryAuctions[selectedCategory].auctions || [];
+    } else {
+      // Could be a subcategory; find parent section
+      const parent = Object.keys(categoryAuctions).find((k) => (categoryAuctions[k].top || []).some(t => t.toLowerCase() === selectedCategory.toLowerCase()));
+      if (parent) filteredAuctions = categoryAuctions[parent].auctions || [];
+      else filteredAuctions = allMockAuctions.filter((a) => a.title.toLowerCase().includes(selectedCategory.toLowerCase()));
+    }
+  }
 
   // Filter auctions for each section
   const bidAuctions = filteredAuctions.filter(a => a.is_bid);

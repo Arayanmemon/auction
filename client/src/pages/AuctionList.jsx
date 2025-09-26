@@ -1,7 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AuctionCard from "../components/AuctionCard";
 import categoryAuctionsJson from "../data/categoryAuctions.json";
-const categoryAuctions = categoryAuctionsJson;
+
+// Normalize category data so both old array format and new object format are supported
+const rawCategories = categoryAuctionsJson;
+const categoryAuctions = {};
+Object.keys(rawCategories).forEach((k) => {
+  const val = rawCategories[k];
+  if (Array.isArray(val)) {
+    categoryAuctions[k] = { auctions: val, top: [] };
+  } else if (val && typeof val === 'object') {
+    categoryAuctions[k] = {
+      auctions: Array.isArray(val.auctions) ? val.auctions : [],
+      top: Array.isArray(val.top) ? val.top : [],
+    };
+  } else {
+    categoryAuctions[k] = { auctions: [], top: [] };
+  }
+});
+
 const categories = ["All", ...Object.keys(categoryAuctions)];
 
 const AuctionList = () => {
@@ -19,17 +36,32 @@ const AuctionList = () => {
   };
 
   // Filtering logic
-  const filteredAuctions = Object.values(categoryAuctions)
-    .flat()
-    .filter((auction) => {
-      if (selectedCategory !== "All") {
-        return categoryAuctions[selectedCategory]?.some(a => a.id === auction.id);
+  // gather all auctions into a single flat array
+  const allAuctions = Object.values(categoryAuctions).flatMap((c) => c.auctions || []);
+
+  // Determine which auctions to show based on selectedCategory
+  let baseFiltered = allAuctions;
+  if (selectedCategory !== "All") {
+    // If selectedCategory is one of the section keys, show that section's auctions
+    if (categoryAuctions[selectedCategory]) {
+      baseFiltered = categoryAuctions[selectedCategory].auctions || [];
+    } else {
+      // Otherwise it may be a subcategory name; find the section that lists it in `top`
+      const sectionKey = Object.keys(categoryAuctions).find((k) =>
+        (categoryAuctions[k].top || []).some((t) => t.toLowerCase() === selectedCategory.toLowerCase())
+      );
+      if (sectionKey) {
+        baseFiltered = categoryAuctions[sectionKey].auctions || [];
+      } else {
+        // Fallback: filter by title containing selectedCategory
+        baseFiltered = allAuctions.filter((a) => a.title.toLowerCase().includes(selectedCategory.toLowerCase()));
       }
-      return true;
-    })
-    .filter((auction) =>
-      auction.title.toLowerCase().includes(search.toLowerCase())
-    );
+    }
+  }
+
+  const filteredAuctions = baseFiltered.filter((auction) =>
+    auction.title.toLowerCase().includes(search.toLowerCase())
+  );
 
   // Pagination logic
   const totalPages = Math.ceil(filteredAuctions.length / itemsPerPage);
