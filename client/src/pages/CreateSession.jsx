@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../contexts/AuthContext";
+import categoryAuctionsJson from "../data/categoryAuctions.json";
 
-// Dummy categories (later fetch from backend)
-const categories = ["Cars", "Phones", "Computers", "Collectibles", "Electronics"];
+// Use section names from categoryAuctions.json
+const categories = ["", ...Object.keys(categoryAuctionsJson)];
 
 const CreateSession = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,9 @@ const CreateSession = () => {
     description: "",
     category: "",
     images: [],
+    digitalFiles: [],
+    quantity: 1,
+    video: null,
     startingPrice: "",
     reservePrice: "",
     buyNowPrice: "",
@@ -36,9 +40,89 @@ const CreateSession = () => {
 
   // Handle image upload
   const handleImageUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const newImages = files.map((file) => URL.createObjectURL(file));
-    setFormData({ ...formData, images: newImages });
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    // Start from existing images and append new ones up to 10 total
+    const existing = formData.images || [];
+    const spaceLeft = Math.max(0, 10 - existing.length);
+    const toAdd = files.slice(0, spaceLeft);
+
+    const added = toAdd.map((file) => ({ file, url: URL.createObjectURL(file) }));
+    const combined = [...existing, ...added];
+    setFormData({ ...formData, images: combined });
+
+    if (files.length > spaceLeft) {
+      setError('You can upload up to 10 images only. Extra files were ignored.');
+    }
+
+    // Clear the input so user can pick more files later
+    try {
+      e.target.value = '';
+    } catch (err) {
+      // ignore
+    }
+  };
+
+  const removeImage = (index) => {
+    const imgs = [...(formData.images || [])];
+    const removed = imgs.splice(index, 1);
+    // Revoke object URL to avoid memory leak
+    if (removed && removed[0] && removed[0].url) {
+      try { URL.revokeObjectURL(removed[0].url); } catch (e) {}
+    }
+    setFormData({ ...formData, images: imgs });
+  };
+
+  // Handle digital files upload (PDF, JPG, PNG, DOCX, ZIP, etc.) - up to 5 files
+  const handleDigitalFilesUpload = (e) => {
+    const files = Array.from(e.target.files || []);
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg',
+      'image/png',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/zip',
+      // also accept common older/ms doc types if needed
+      'application/msword'
+    ];
+    // Filter by allowed types
+    const filtered = files.filter((f) => allowedTypes.includes(f.type) || /\.(pdf|jpe?g|png|docx|doc|zip)$/i.test(f.name));
+    if (filtered.length !== files.length) {
+      setError('Some files were ignored — allowed types: PDF, JPG, PNG, DOCX, ZIP.');
+    }
+
+    // Append to existing digital files up to 5 total
+    const existing = formData.digitalFiles || [];
+    const spaceLeft = Math.max(0, 5 - existing.length);
+    const toAdd = filtered.slice(0, spaceLeft);
+    const added = toAdd.map((file) => ({ file, name: file.name, size: file.size }));
+    const combined = [...existing, ...added];
+    setFormData({ ...formData, digitalFiles: combined });
+    if (files.length > spaceLeft) {
+      setError('You can upload up to 5 digital files only. Extra files were ignored.');
+    }
+
+    // Clear the input so user can pick more files later (including same file)
+    try { e.target.value = ''; } catch (err) {}
+  };
+
+  const removeDigitalFile = (index) => {
+    const arr = [...formData.digitalFiles];
+    arr.splice(index, 1);
+    setFormData({ ...formData, digitalFiles: arr });
+  };
+
+  // Handle video upload (single)
+  const handleVideoUpload = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, video: file });
+    } else {
+      setFormData({ ...formData, video: null });
+    }
+    // Clear the input so user can re-select the same file or pick another
+    try { e.target.value = ''; } catch (err) {}
   };
 
   // Submit
@@ -65,16 +149,30 @@ const CreateSession = () => {
       auctionData.append('end_time', endDateTime.toISOString());
       auctionData.append('shipping', formData.shipping);
       auctionData.append('location', formData.location);
+      // Keep backend compatibility: send selected category name and default category_id (backend currently expects category_id)
+      auctionData.append('category', formData.category || '');
       auctionData.append('category_id', 1);
+      auctionData.append('quantity', formData.quantity || 1);
+      // If video present, append it
+      if (formData.video) {
+        auctionData.append('video', formData.video);
+      }
+      // Append digital files if present
+      if (formData.digitalFiles && formData.digitalFiles.length > 0) {
+        for (let i = 0; i < formData.digitalFiles.length; i++) {
+          auctionData.append('digital_files[]', formData.digitalFiles[i].file);
+        }
+      }
       if(formData.auctionType === 'bid') {
       auctionData.append('is_bid', 1);
       } else {
       auctionData.append('is_bid', 0);
       }
-      // Handle image files
-      const imageFiles = document.querySelector('input[type="file"]').files;
-      for (let i = 0; i < imageFiles.length; i++) {
-        auctionData.append('images[]', imageFiles[i]);
+      // Append image files from component state (supports incremental uploads)
+      if (formData.images && formData.images.length > 0) {
+        for (let i = 0; i < Math.min(formData.images.length, 10); i++) {
+          auctionData.append('images[]', formData.images[i].file);
+        }
       }
 
       const token = localStorage.getItem("authToken");
@@ -107,7 +205,7 @@ const CreateSession = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 text-white">
+    <div className="container mx-auto px-4 py-8 my-20 text-white">
       <h1 className="text-3xl font-bold mb-6 text-yellow-400">Create New Auction</h1>
 
       {error && (
@@ -124,7 +222,7 @@ const CreateSession = () => {
         <input
           type="text"
           name="title"
-          placeholder="Auction Title"
+          placeholder="Product Title"
           value={formData.title}
           onChange={handleChange}
           required
@@ -160,26 +258,97 @@ const CreateSession = () => {
 
         {/* Images */}
         <div>
-          <label className="block text-sm font-medium mb-1">Upload Images</label>
+          <label className="block text-sm font-medium mb-1">Upload Images (up to 10)</label>
           <input
             type="file"
+            name="images"
             accept="image/*"
             multiple
             onChange={handleImageUpload}
             className="border border-yellow-700 rounded px-3 py-2 w-full bg-black bg-opacity-60 text-yellow-200"
           />
           {formData.images.length > 0 && (
-            <div className="flex gap-2 mt-2">
-              {formData.images.map((img, index) => (
-                <img
-                  key={index}
-                  src={img}
-                  alt="preview"
-                  className="w-16 h-16 object-cover rounded border border-yellow-700"
-                />
+            <div className="flex gap-2 mt-2 flex-wrap">
+              {formData.images.map((imgObj, index) => (
+                    <div key={index} className="relative w-16 h-16">
+                      <img
+                        src={imgObj.url}
+                        alt={`preview-${index}`}
+                        className="w-16 h-16 object-cover rounded border border-yellow-700"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-black bg-opacity-70 text-yellow-300 rounded-full w-6 h-6 flex items-center justify-center border border-yellow-700 hover:text-yellow-200"
+                        title="Remove image"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+            </div>
+          )}
+        </div>
+
+        {/* Digital files (PDF, JPG, PNG, DOCX, ZIP) */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Attach Digital Files (up to 5) — PDF, JPG, PNG, DOCX, ZIP</label>
+          <input
+            type="file"
+            name="digitalFiles"
+            accept=".pdf,.jpg,.jpeg,.png,.docx,.doc,.zip,application/pdf,image/*,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,application/zip"
+            multiple
+            onChange={handleDigitalFilesUpload}
+            className="border border-yellow-700 rounded px-3 py-2 w-full bg-black bg-opacity-60 text-yellow-200"
+          />
+          {formData.digitalFiles && formData.digitalFiles.length > 0 && (
+            <div className="mt-2 bg-black bg-opacity-40 p-2 rounded border border-yellow-700">
+              {formData.digitalFiles.map((f, idx) => (
+                <div key={idx} className="flex items-center justify-between gap-2 py-2 border-b border-yellow-800">
+                  <div className="text-sm text-yellow-200 truncate">{f.name}</div>
+                  <div className="flex items-center gap-3">
+                  <div className="text-xs text-yellow-200">{(f.size/1024).toFixed(1)} KB</div>
+                  <button
+                    type="button"
+                    onClick={() => removeDigitalFile(idx)}
+                    className="bg-black bg-opacity-70 text-yellow-300 rounded px-2 py-0.5 border border-yellow-700 hover:text-yellow-200"
+                    aria-label={`Remove ${f.name}`}
+                    title="Remove file"
+                  >
+                    Remove
+                  </button>
+                </div>
+                </div>
               ))}
             </div>
           )}
+        </div>
+
+        {/* Video (single) */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Upload Video (optional)</label>
+          <input
+            type="file"
+            accept="video/*"
+            onChange={handleVideoUpload}
+            className="border border-yellow-700 rounded px-3 py-2 w-full bg-black bg-opacity-60 text-yellow-200"
+          />
+          {formData.video && (
+            <div className="mt-2 text-gray-300">Selected video: {formData.video.name}</div>
+          )}
+        </div>
+
+        {/* Quantity */}
+        <div>
+          <label className="block text-sm font-medium mb-1">Quantity</label>
+          <input
+            type="number"
+            name="quantity"
+            min={1}
+            value={formData.quantity}
+            onChange={handleChange}
+            className="w-full border border-yellow-700 rounded px-3 py-2 bg-black bg-opacity-60 text-yellow-200 focus:outline-none focus:ring-2 focus:ring-yellow-600"
+          />
         </div>
 
         {/* Prices */}

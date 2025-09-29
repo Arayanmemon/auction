@@ -146,13 +146,7 @@ const Home = () => {
         )}
       </section>
 
-      {searchBarOpen && (
-        <SearchBar
-          value={searchValue}
-          onChange={setSearchValue}
-          onClose={() => setSearchBarOpen(false)}
-        />
-      )}
+      {/* SearchBar popup removed from Home — Browse now only opens inline navbar search */}
     </div>
   );
 };
