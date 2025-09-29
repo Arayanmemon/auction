@@ -80,9 +80,9 @@ const AppRouter = () => {
         <Route
           path="/create-session"
           element={
-           // <ProtectedRoute role="seller">
+            <ProtectedRoute role="seller">
               <CreateSession />
-          //  </ProtectedRoute>
+            </ProtectedRoute>
           }
         />
         <Route
