@@ -3,9 +3,7 @@ import { Link } from "react-router-dom";
 const ItemCard = ({ item }) => {
   let imgSrc = 'https://placehold.co/400x400/png?text=Auction+Item';
   if (item.images && item.images[0]) {
-    imgSrc = item.images[0].startsWith('/assets/')
-      ? item.images[0]
-      : `${import.meta.env.VITE_API_URL}${item.images[0]}`;
+    imgSrc = item.images[0];
   }
   return (
     <div className="border rounded-lg shadow hover:shadow-lg transition bg-transparent overflow-hidden">

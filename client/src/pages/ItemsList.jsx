@@ -1,15 +1,34 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ItemCard from "../components/ItemCard";
-import { itemCategories } from "../data/itemCategories";
+import categoryAuctionsJson from "../data/categoryAuctions.json";
 
-const categories = ["All", ...Object.keys(itemCategories)];
+const categories = ["All", ...Object.keys(categoryAuctionsJson)];
 
 const ItemsList = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [auctions, setAuctions] = useState([]);
   const itemsPerPage = 6;
+
+  // Fetch backend auctions (falls back to mock JSON later)
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auctions/all`);
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        setAuctions(data.data || data || []);
+      } catch (e) {
+        console.warn('Fetch auctions failed, falling back to mock data', e);
+        // build flat mock list from categoryAuctionsJson
+        const mock = Object.values(categoryAuctionsJson).flatMap(v => Array.isArray(v) ? v : (v.auctions || []));
+        setAuctions(mock);
+      }
+    };
+    fetchAll();
+  }, []);
 
   // Category handler
   const handleCategoryChange = (category) => {
@@ -17,25 +36,43 @@ const ItemsList = () => {
     setCurrentPage(1);
   };
 
-  // Filtering logic
-  const filteredItems = Object.values(itemCategories)
-    .flat()
-    .filter((item) => {
-      if (selectedCategory !== "All") {
-        return itemCategories[selectedCategory]?.some(i => i.id === item.id);
-      }
-      return true;
-    })
-    .filter((item) =>
-      item.title.toLowerCase().includes(search.toLowerCase())
-    );
+  // Normalize categoryAuctionsJson to sections like Home
+  const categoryAuctions = {};
+  Object.keys(categoryAuctionsJson).forEach((k) => {
+    const val = categoryAuctionsJson[k];
+    if (Array.isArray(val)) categoryAuctions[k] = { auctions: val, top: [] };
+    else if (val && typeof val === 'object') categoryAuctions[k] = { auctions: Array.isArray(val.auctions) ? val.auctions : [], top: Array.isArray(val.top) ? val.top : [] };
+    else categoryAuctions[k] = { auctions: [], top: [] };
+  });
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-  const paginatedItems = filteredItems.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const allMockAuctions = Object.values(categoryAuctions).flatMap((c) => c.auctions || []);
+
+  // Derive filtered auctions using same logic as Home
+  let filteredAuctions = [];
+  if (selectedCategory === 'All') {
+    filteredAuctions = auctions.length > 0 ? auctions : allMockAuctions;
+  } else {
+    const backendMatches = auctions.filter((a) => (a.category || '').toLowerCase() === selectedCategory.toLowerCase());
+    if (backendMatches.length > 0) filteredAuctions = backendMatches;
+    else if (categoryAuctions[selectedCategory]) filteredAuctions = categoryAuctions[selectedCategory].auctions || [];
+    else {
+      const parent = Object.keys(categoryAuctions).find((k) => (categoryAuctions[k].top || []).some(t => t.toLowerCase() === selectedCategory.toLowerCase()));
+      if (parent) filteredAuctions = categoryAuctions[parent].auctions || [];
+      else filteredAuctions = allMockAuctions.filter((a) => a.title.toLowerCase().includes(selectedCategory.toLowerCase()));
+    }
+  }
+
+  // Keep only Buy Now items (non-bid)
+  let buyNowItems = filteredAuctions.filter(a => !a.is_bid);
+
+  // Apply search filter
+  if (search && search.trim() !== '') {
+    buyNowItems = buyNowItems.filter(item => (item.title || '').toLowerCase().includes(search.toLowerCase()));
+  }
+
+  // Pagination
+  const totalPages = Math.ceil(buyNowItems.length / itemsPerPage);
+  const paginatedItems = buyNowItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div className="container mx-auto my-15 px-4 py-8 flex flex-col md:flex-row gap-6">
