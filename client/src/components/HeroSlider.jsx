@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const HeroSlider = ({ slides }) => {
@@ -25,6 +25,8 @@ const HeroSlider = ({ slides }) => {
   const { images, title, description, id } = slides[current] || {};
   const backgroundImage = images?.[0] || "";
 
+  const navigate = useNavigate();
+
   return (
     <section className="relative w-full h-[500px] bg-black flex items-center justify-center overflow-hidden">
       {/* Background Image */}
@@ -37,13 +39,12 @@ const HeroSlider = ({ slides }) => {
           Your Premier Marketplace
         </h1>
         <div className="flex gap-6 justify-center mb-10">
-          <Link
-            to={`/auctions/${id}`}
+          <button
+            onClick={() => navigate('/auctions')}
             className="bg-yellow-600 text-black font-bold px-8 py-4 rounded-lg text-xl shadow-lg border-2  hover:bg-yellow-500 transition"
-            // style={{boxShadow:'0 2px 16px #d4af37'}}
           >
             Start Bidding
-          </Link>
+          </button>
           <Link
             to="/sell"
             className="border-2 border-yellow-600 text-yellow-600 font-bold px-8 py-4 rounded-lg text-xl shadow-lg hover:bg-yellow-600 hover:text-black transition"

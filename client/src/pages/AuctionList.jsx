@@ -26,6 +26,7 @@ const AuctionList = () => {
   const [filter, setFilter] = useState("all"); // all | upcoming | past
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
+  const [auctions, setAuctions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
@@ -36,32 +37,42 @@ const AuctionList = () => {
   };
 
   // Filtering logic
-  // gather all auctions into a single flat array
-  const allAuctions = Object.values(categoryAuctions).flatMap((c) => c.auctions || []);
+  // build mock flat list
+  const allMockAuctions = Object.values(categoryAuctions).flatMap((c) => c.auctions || []);
 
-  // Determine which auctions to show based on selectedCategory
-  let baseFiltered = allAuctions;
-  if (selectedCategory !== "All") {
-    // If selectedCategory is one of the section keys, show that section's auctions
-    if (categoryAuctions[selectedCategory]) {
-      baseFiltered = categoryAuctions[selectedCategory].auctions || [];
-    } else {
-      // Otherwise it may be a subcategory name; find the section that lists it in `top`
-      const sectionKey = Object.keys(categoryAuctions).find((k) =>
-        (categoryAuctions[k].top || []).some((t) => t.toLowerCase() === selectedCategory.toLowerCase())
-      );
-      if (sectionKey) {
-        baseFiltered = categoryAuctions[sectionKey].auctions || [];
-      } else {
-        // Fallback: filter by title containing selectedCategory
-        baseFiltered = allAuctions.filter((a) => a.title.toLowerCase().includes(selectedCategory.toLowerCase()));
+  // Fetch backend auctions (prefer server data; fallback to mock)
+  useEffect(() => {
+    const fetchAll = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/auctions/all`);
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        setAuctions(data.data || data || []);
+      } catch (e) {
+        console.warn('Fetch auctions failed, falling back to mock data', e);
+        setAuctions(allMockAuctions);
       }
+    };
+    fetchAll();
+  }, []);
+
+  // Determine which auctions to show based on selectedCategory (same logic as Home.jsx)
+  let filteredAuctions = [];
+  if (selectedCategory === 'All') {
+    filteredAuctions = auctions.length > 0 ? auctions : allMockAuctions;
+  } else {
+    const backendMatches = (auctions || []).filter((a) => (a.category || '').toLowerCase() === selectedCategory.toLowerCase());
+    if (backendMatches.length > 0) filteredAuctions = backendMatches;
+    else if (categoryAuctions[selectedCategory]) filteredAuctions = categoryAuctions[selectedCategory].auctions || [];
+    else {
+      const parent = Object.keys(categoryAuctions).find((k) => (categoryAuctions[k].top || []).some(t => t.toLowerCase() === selectedCategory.toLowerCase()));
+      if (parent) filteredAuctions = categoryAuctions[parent].auctions || [];
+      else filteredAuctions = allMockAuctions.filter((a) => a.title.toLowerCase().includes(selectedCategory.toLowerCase()));
     }
   }
 
-  const filteredAuctions = baseFiltered.filter((auction) =>
-    auction.title.toLowerCase().includes(search.toLowerCase())
-  );
+  // Apply search filter
+  filteredAuctions = filteredAuctions.filter((auction) => (auction.title || '').toLowerCase().includes(search.toLowerCase()));
 
   // Pagination logic
   const totalPages = Math.ceil(filteredAuctions.length / itemsPerPage);

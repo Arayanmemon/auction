@@ -30,13 +30,13 @@ const AppRouter = () => {
     <MainLayout>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Home />} />
+   <Route path="/" element={<Home />} />
   <Route path="/auctions" element={<AuctionList />} />
   <Route path="/items" element={<ItemsList />} />
-        <Route path="/item/:id" element={<ItemDetail />} />
-        <Route path="/auction/:id" element={<AuctionDetail />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+  <Route path="/item/:id" element={<ItemDetail />} />
+  <Route path="/auction/:id" element={<AuctionDetail />} />
+  <Route path="/login" element={<Login />} />
+  <Route path="/register" element={<Register />} />
   <Route path="/about" element={<About />} />
   <Route path="/contact" element={<Contact />} />
   <Route path="/buyer/watchlist" element={<Watchlist />} />

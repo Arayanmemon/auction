@@ -7,9 +7,7 @@ const AuctionCard = ({ auction }) => {
   // Fix: Define imgSrc before using
   let imgSrc = 'https://placehold.co/400x400/png?text=Auction+Item';
   if (auction.images && auction.images[0]) {
-    imgSrc = auction.images[0].startsWith('/assets/')
-      ? auction.images[0]
-      : `${import.meta.env.VITE_API_URL}${auction.images[0]}`;
+    imgSrc = auction.images[0];
   }
   return (
     <div className="border rounded-lg shadow hover:shadow-lg transition bg-transparent overflow-hidden relative">

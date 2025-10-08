@@ -37,6 +37,18 @@ const Navbar = () => {
     }
   };
 
+  // Handle Sell click: if logged in -> seller dashboard, else -> register
+  const handleSellClick = (e) => {
+    e?.preventDefault?.();
+    if (user) {
+      // navigate to seller dashboard
+      navigate('/seller-dashboard');
+    } else {
+      // redirect to register
+      navigate('/register');
+    }
+  };
+
   return (
   <nav className="bg-black bg-opacity-80 fixed top-0 w-full z-50 font-serif">
       {/* Top Navbar */}
@@ -71,7 +83,7 @@ const Navbar = () => {
             </div>
           )}
           <Link to="/items" className="text-gold text-lg font-semibold hover:text-yellow-400">Buy</Link>
-          <Link to="/sell" className="text-gold text-lg font-semibold hover:text-yellow-400">Sell</Link>
+          <button onClick={handleSellClick} className="text-gold text-lg font-semibold hover:text-yellow-400">Sell</button>
 
           {/* Session (Seller feature) */}
           {user?.role === "seller" && (
@@ -146,7 +158,7 @@ const Navbar = () => {
           <div className="flex flex-col px-4 py-2 gap-2">
             <Link to="/browse" onClick={() => setIsOpen(false)} className="text-gold text-lg font-semibold hover:text-yellow-400">Browse</Link>
             <Link to="/auctions" onClick={() => setIsOpen(false)} className="text-gold text-lg font-semibold hover:text-yellow-400">Buy</Link>
-            <Link to="/sell" onClick={() => setIsOpen(false)} className="text-gold text-lg font-semibold hover:text-yellow-400">Sell</Link>
+            <button onClick={(e) => { handleSellClick(e); setIsOpen(false); }} className="text-gold text-lg font-semibold hover:text-yellow-400">Sell</button>
             {user?.role === "seller" && (
               <Link to="/create-session" onClick={() => setIsOpen(false)} className="text-gold text-lg font-semibold hover:text-yellow-400">
                 Create Session
