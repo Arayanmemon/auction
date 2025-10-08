@@ -43,19 +43,35 @@ class SellerController extends Controller
         $user = $request->user();
         $auctionData = $request->validated();
         $imagePaths = [];
+        $filePaths = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 // Generate unique filename
                 $filename = \Str::random(20) . '.' . $image->getClientOriginalExtension();
-                
                 // Store in public disk under auctions folder
-                $path = $image->storeAs('auctions', $filename, 'public');
-                
+                $path = $image->storeAs('auctions', $filename, 's3');
                 // Store the full URL for frontend use
                 $imagePaths[] = \Storage::url($path);
             }
         }
+        if ($request->hasFile('digital_files')) {
+            foreach ($request->file('digital_files') as $file) {
+                // Generate unique filename
+                $filename = \Str::random(20) . '.' . $file->getClientOriginalExtension();
+                // Store in public disk under auctions folder
+                $path = $file->storeAs('auctions/files', $filename, 's3');
+                // Store the full URL for frontend use
+                $filePaths[] = \Storage::url($path);
+            }
+        }
+        if($request->hasFile('video')){
+            $video = $request->file('video');
+            $filename = \Str::random(20) . '.' . $video->getClientOriginalExtension();
+            $path = $video->storeAs('auctions/videos', $filename, 's3');
+            $auctionData['video'] = \Storage::url($path);
+        }
         $auctionData['images'] = $imagePaths;
+        $auctionData['digital_files'] = $filePaths;
         $auctionData['status'] = 'active'; // Default status
         $auction = $user->auctions()->create($auctionData);
         
@@ -142,12 +158,12 @@ class SellerController extends Controller
         $user = $request->user();
 
         // Check if user can become seller
-        if (!$user->canBecomeSeller()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You must verify your email and phone before becoming a seller',
-            ], 400);
-        }
+        // if (!$user->canBecomeSeller()) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'You must verify your email and phone before becoming a seller',
+        //     ], 400);
+        // }
 
         // Check if user is already a seller
         if ($user->is_seller) {
@@ -174,15 +190,15 @@ class SellerController extends Controller
 
         // Handle file uploads
         if ($request->hasFile('store_logo')) {
-            $sellerData['store_logo'] = $request->file('store_logo')->store('seller/logos', 'public');
+            $sellerData['store_logo'] = $request->file('store_logo')->store('seller/logos');
         }
 
         if ($request->hasFile('gov_id')) {
-            $sellerData['gov_id_path'] = $request->file('gov_id')->store('seller/documents', 'public');
+            $sellerData['gov_id_path'] = $request->file('gov_id')->store('seller/documents');
         }
 
         if ($request->hasFile('selfie')) {
-            $sellerData['selfie_path'] = $request->file('selfie')->store('seller/selfies', 'public');
+            $sellerData['selfie_path'] = $request->file('selfie')->store('seller/selfies');
         }
 
         $sellerData['user_id'] = $user->id;
@@ -245,7 +261,7 @@ class SellerController extends Controller
                 if ($seller->store_logo) {
                     Storage::disk('public')->delete($seller->store_logo);
                 }
-                $updateData['store_logo'] = $request->file('store_logo')->store('seller/logos', 'public');
+                $updateData['store_logo'] = $request->file('store_logo')->store('seller/logos');
             }
         } else {
             // Full validation for pending sellers
@@ -267,7 +283,7 @@ class SellerController extends Controller
                 if ($seller->store_logo) {
                     Storage::disk('public')->delete($seller->store_logo);
                 }
-                $updateData['store_logo'] = $request->file('store_logo')->store('seller/logos', 'public');
+                $updateData['store_logo'] = $request->file('store_logo')->store('seller/logos');
             }
         }
 

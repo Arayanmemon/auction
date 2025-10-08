@@ -18,6 +18,8 @@ class Auction extends Model
         'title',
         'description',
         'images',
+        'digital_files',
+        'video',
         'starting_price',
         'reserve_price',
         'buy_now_price',
@@ -42,6 +44,8 @@ class Auction extends Model
     {
         return [
             'images' => 'array',
+            'digital_files' => 'array',
+            'video' => 'string',
             'shipping_locations' => 'array',
             'starting_price' => 'decimal:2',
             'reserve_price' => 'decimal:2',

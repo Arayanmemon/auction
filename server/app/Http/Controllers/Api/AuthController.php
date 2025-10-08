@@ -51,7 +51,7 @@ class AuthController extends Controller
             DB::beginTransaction();
             // Prepare user data
             if($request->hasFile('profile_pic')){
-                $path = $request->file('profile_pic')->store('profile_pics', 'public');
+                $path = $request->file('profile_pic')->store('profile_pics');
                 \Log::info('Profile pic path: ' . $path);
                 $request->merge(['profile_pic' => $path]);
             }

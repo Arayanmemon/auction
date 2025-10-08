@@ -12,7 +12,6 @@ const AuctionDetail = () => {
   const [isSaved, setIsSaved] = useState(false);
   const [currentBid, setCurrentBid] = useState(auction.current_bid);
   const [bidHistory, setBidHistory] = useState([]);
-  // const auction = auctions.find((a) => a.id === parseInt(id));
   const { user } = useAuthContext();
   
   useEffect(() => {
@@ -56,11 +55,16 @@ const AuctionDetail = () => {
 
   // Always return images array
   const auctionImages = auction.images && auction.images.length > 0 ? auction.images : [auction.image];
+  // Thumbnails: video first (if available), then images
+  const thumbnails = auction.video ? ['video', ...auctionImages] : auctionImages;
+  // Selected media: 'video' or image path
   useEffect(() => {
-    if (auctionImages.length > 0) {
+    if (auction.video) {
+      setSelectedImage('video');
+    } else if (auctionImages.length > 0) {
       setSelectedImage(auctionImages[0]);
     }
-  }, [auctionImages]);
+  }, [auction.video, auctionImages]);
 
   const toggleWishlist = async () => {
     try {
@@ -93,13 +97,6 @@ const AuctionDetail = () => {
       alert("You must be logged in to place a bid.");
       return;
     }
-    // Add bid to history
-    // const newBid = {
-    //   user: user.name,
-    //   amount: bidValue,
-    //   time: new Date().toLocaleString(),
-    // };
-    // setBidHistory(prev => [newBid, ...prev]);
     setCurrentBid(bidValue);
     setBidAmount("");
     try {
@@ -129,33 +126,44 @@ const AuctionDetail = () => {
       <div className="grid md:grid-cols-2 gap-8">
         {/* IMAGE GALLERY SECTION */}
         <div className="flex gap-4">
-          {/* Thumbnails (only if multiple images) */}
-          {auctionImages.length >= 1 && (
+          {/* Thumbnails (video + images) */}
+          {thumbnails.length >= 1 && (
             <div className="flex flex-col gap-2">
-              {auctionImages.map((img, index) => (
-                <img
-                  key={index}
-                  src={`${import.meta.env.VITE_API_URL}` + img}
-                  alt={`Thumbnail ${index + 1}`}
-                  className={`w-16 h-16 object-cover cursor-pointer border rounded ${
-                    selectedImage === img
-                      ? "border-yellow-500"
-                      : "border-gray-700 hover:border-yellow-500"
-                  }`}
-                  onClick={() => setSelectedImage(img)}
-                />
+              {thumbnails.map((thumb, index) => (
+                thumb === 'video' ? (
+                  <div
+                    key="video-thumb"
+                    className={`w-16 h-16 flex items-center justify-center cursor-pointer border rounded bg-black ${selectedImage === 'video' ? 'border-yellow-500' : 'border-gray-700 hover:border-yellow-500'}`}
+                    onClick={() => setSelectedImage('video')}
+                  >
+                    <span className="text-yellow-400 text-xs">Video</span>
+                  </div>
+                ) : (
+                  <img
+                    key={index}
+                    src={thumb}
+                    alt={`Thumbnail ${index + 1}`}
+                    className={`w-16 h-16 object-cover cursor-pointer border rounded ${selectedImage === thumb ? 'border-yellow-500' : 'border-gray-700 hover:border-yellow-500'}`}
+                    onClick={() => setSelectedImage(thumb)}
+                  />
+                )
               ))}
             </div>
           )}
-
-          {/* Main Image */}
+          {/* Main display: video or image */}
           <div className="relative flex-1 border rounded overflow-hidden group">
-            <img
-              src={`${import.meta.env.VITE_API_URL}` + selectedImage}
-              alt={auction.title}
-              className="w-full h-96 object-contain transform transition-transform duration-300 group-hover:scale-110 bg-black"
-            />
-
+            {selectedImage === 'video' ? (
+              <video controls className="w-full h-96 object-contain rounded mb-3 bg-black">
+                <source src={`${auction.video}`} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            ) : (
+              <img
+                src={selectedImage}
+                alt={auction.title}
+                className="w-full h-96 object-contain transform transition-transform duration-300 group-hover:scale-110 bg-black"
+              />
+            )}
             {/* Save Button */}
             <button
               onClick={toggleWishlist}
@@ -163,7 +171,6 @@ const AuctionDetail = () => {
             >
               {isSaved ? "♥ Saved" : "♡ Save"}
             </button>
-
             {/* Share Button */}
             <button
               className="absolute bottom-2 right-2 p-2 border rounded bg-gray-800 text-yellow-200 hover:bg-gray-700"

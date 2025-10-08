@@ -23,6 +23,8 @@ class CreateAuctionRequest extends FormRequest
             'start_time' => ['required', 'date'],
             'end_time' => ['required', 'date', 'after:start_time'],
             'images' => ['nullable', 'array'],
+            'digital_files' => ['nullable', 'array'],
+            'video' => ['nullable'],
             'is_bid' => ['sometimes', 'boolean'],
             // 'images.*' => ['string', 'url'],
         ];
