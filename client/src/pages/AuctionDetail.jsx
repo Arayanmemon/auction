@@ -26,6 +26,11 @@ const AuctionDetail = () => {
   const [currentBid, setCurrentBid] = useState(auction.current_bid);
   const [bidHistory, setBidHistory] = useState([]);
   const { user } = useAuthContext();
+
+  const currency = (v) => {
+    const n = Number(v ?? 0);
+    return `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
   
   useEffect(() => {
     const fetchAuction = async () => {
@@ -69,13 +74,18 @@ const AuctionDetail = () => {
   // Build media items: images first, then optional video
   const mediaItems = [];
   if (auction.images && auction.images.length > 0) {
-    auction.images.forEach((img) => mediaItems.push({ type: 'image', src: img }));
+    auction.images.forEach((img) => {
+      if (typeof img === 'string') mediaItems.push({ type: 'image', src: img });
+      else if (img && typeof img === 'object') mediaItems.push({ type: 'image', src: img.url || img.src || img.file_url || '' });
+    });
   } else if (auction.image) {
     mediaItems.push({ type: 'image', src: auction.image });
   }
   if (auction.video) {
     mediaItems.push({ type: 'video', src: auction.video });
   }
+
+  const isBid = Number(auction.is_bid) === 1 || auction.auctionType === 'bid';
 
   useEffect(() => {
     if (mediaItems.length > 0) setSelectedIndex(0);
@@ -390,32 +400,39 @@ const AuctionDetail = () => {
 
         <div className="border rounded-lg p-5 shadow bg-gradient-to-br from-gray-900 to-black border-yellow-700">
           {/* Estimate and End Time */}
-          {auction.starting_price && (
-            <p className="text-lg text-yellow-200 mb-1">
-              Starting Price: <span className="font-semibold">${auction.starting_price}</span>
-            </p>
-          )}
-          {auction.end_time && (
-            <p className="text-sm text-yellow-200 mb-3">
-              Ends on {formatEndInfo(auction.end_time)}
-            </p>
-          )}
+          {/* Price summary and controls (different for auctions vs buy-now items) */}
+          {isBid ? (
+            <>
+              <div className="mb-2">
+                <div className="text-sm text-yellow-200 mb-1">Current Bid</div>
+                <div className="text-4xl md:text-5xl font-extrabold text-yellow-400 tracking-tight mb-1">
+                  {currency(auction.current_bid ?? auction.starting_price ?? 0)}
+                </div>
+                <div className="text-sm text-yellow-200">{auction.end_time && <>Ends on {formatEndInfo(auction.end_time)}</>}</div>
+              </div>
 
-          {/* Current Price & Bids */}
-          <div className="flex items-baseline gap-3 mb-3">
-            <p className="text-4xl md:text-5xl font-extrabold text-yellow-400 tracking-tight">
-              ${auction.current_bid}
-            </p>
-            <span className="text-yellow-200 text-sm mt-1">
-              ({auction.bid_count} bids)
-            </span>
-          </div>
-
-          {/* Countdown Timer */}
-          {auction.end_time && (
-            <div className="text-sm mb-3 text-yellow-200">
-              <CountdownTimer endTime={auction.end_time} />
-            </div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="text-yellow-200 text-sm">{(auction.bid_count ?? 0)} bids</div>
+                {auction.end_time && (
+                  <div className="text-sm text-yellow-200">
+                    <CountdownTimer endTime={auction.end_time} />
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mb-2">
+                <div className="text-sm text-yellow-200 mb-1">Price</div>
+                <div className="text-4xl md:text-5xl font-extrabold text-yellow-400 tracking-tight mb-1">
+                  {currency(auction.buy_now_price ?? auction.starting_price ?? 0)}
+                </div>
+              </div>
+              <div className="mb-3 text-sm text-yellow-200">
+                <div>Available Quantity: <span className="text-yellow-300 font-medium">{auction.quantity ?? 1}</span></div>
+                <div className="mt-1">{auction.shipping_details ? <span>Shipping: <span className="text-white">{auction.shipping_details}</span></span> : null}</div>
+              </div>
+            </>
           )}
           {/* Product meta: condition, quantity, shipping, returns, payments, delivery */}
           <div className="mt-4 mb-4 text-yellow-200">
@@ -441,10 +458,10 @@ const AuctionDetail = () => {
             )}
             {/* Demo fallbacks when seller didn't provide values */}
             <p className="text-sm mt-3">Condition: <span className="text-yellow-300 font-medium">{auction.condition || 'Not specified (demo)'}</span></p>
-            <p className="text-sm">Delivery time: <span className="text-yellow-300 font-medium">{auction.delivery || 'Ships in 3-5 business days (demo)'}</span></p>
-            <p className="text-sm">Import fees: <span className="text-yellow-300">{auction.import_fees || 'Buyer may be responsible for import fees (demo)'}</span></p>
-            <p className="text-sm">Shipping: <span className="text-yellow-300">{auction.shipping_option ? (auction.shipping_option === 'flat' ? (auction.shipping_cost ? `$${auction.shipping_cost}` : 'Flat rate') : (auction.shipping || 'See seller')) : 'Calculated at checkout (demo)'}</span></p>
-            <p className="text-sm">Returns: <span className="text-yellow-300">{auction.returns_policy || 'No returns accepted (demo) — contact seller'}</span></p>
+            <p className="text-sm">Shipping details: <span className="text-yellow-300 font-medium">{auction.shipping_details || 'Ships in 3-5 business days (demo)'}</span></p>
+            <p className="text-sm">Shipping locations: <span className="text-yellow-300">{Array.isArray(auction.shipping_locations) ? auction.shipping_locations.join(', ') : (auction.shipping_locations || 'Worldwide')}</span></p>
+            <p className="text-sm">Shipping cost: <span className="text-yellow-300">{auction.shipping_method === 'flat' ? (auction.shipping_cost ? currency(auction.shipping_cost) : 'Flat rate') : (auction.shipping_method === 'free' ? 'Free' : 'Calculated at checkout')}</span></p>
+            <p className="text-sm">Return policy: <span className="text-yellow-300">{auction.return_policy || 'No returns accepted (demo) — contact seller'}</span></p>
             <p className="text-sm">Payments: {' '}
               {(() => {
                 const raw = auction.payment_methods || '';
@@ -544,8 +561,18 @@ const AuctionDetail = () => {
         </div>
            
     <div>
+
+      {/* these will be displayed as tabs  */}
+      {/* also display here aution/items details complete details with cateforgy with all details  */}
       {/* <h1>add here  seller  info and contact with seller to seller profile
-       also add rating 
+       also add rating and order completed and successfull orders and total orders
+       and total reviews and total ratings
+       and total products listed by seller
+       and seller location
+       and member since date
+       and seller other products link to seller profile page
+       and seller profile link to click to view full profile of seller  
+
       
       </h1> */}
     </div>
